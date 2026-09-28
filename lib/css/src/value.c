@@ -1182,7 +1182,7 @@ int css_register_valdef_alias(const char *alias, const char *definitons)
 
 static void css_dump_valdef(const css_valdef_t *valdef, css_dump_context_t *ctx)
 {
-        size_t len = 0, i = 0;
+        size_t i = 0;
         list_node_t *node;
         const char *name;
 
@@ -1200,7 +1200,6 @@ static void css_dump_valdef(const css_valdef_t *valdef, css_dump_context_t *ctx)
                 break;
         case CSS_VALDEF_SIGN_JUXTAPOSITION:
                 DUMP("(");
-                len++;
                 for (list_each(node, &valdef->children)) {
                         css_dump_valdef(node->data, ctx);
                         if (i + 1 < valdef->children.length) {
@@ -1209,7 +1208,6 @@ static void css_dump_valdef(const css_valdef_t *valdef, css_dump_context_t *ctx)
                         i++;
                 }
                 DUMP(")");
-                len++;
                 break;
         case CSS_VALDEF_SIGN_SINGLE_BAR:
                 for (list_each(node, &valdef->children)) {

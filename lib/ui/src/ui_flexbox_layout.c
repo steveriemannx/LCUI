@@ -561,7 +561,9 @@ static void ui_flexbox_layout_load_main_size(ui_flexbox_layout_context_t *ctx)
         float max_item_min_size = 0;
         bool main_size_fixed;
         bool load_intrinsic_lines;
+#ifdef UI_DEBUG_ENABLED
         unsigned child_index = 0;
+#endif
         unsigned in_flow_count = 0;
 
         main_size_fixed =
@@ -631,7 +633,9 @@ static void ui_flexbox_layout_load_main_size(ui_flexbox_layout_context_t *ctx)
                 UI_DEBUG_MSG("children[%u]=%s, size=%s, flex_basis(%d)=%g",
                              child_index, str, size_str,
                              cs->type_bits.flex_basis, cs->flex_basis);
+#ifdef UI_DEBUG_ENABLED
                 child_index++;
+#endif
                 UI_DEBUG_END;
         }
         if (load_intrinsic_lines) {
@@ -715,7 +719,9 @@ static void ui_flexbox_layout_apply_line(ui_flexbox_layout_context_t *ctx,
         list_node_t *node;
         ui_widget_t *child;
         float item_main_size, item_cross_size;
+#ifdef UI_DEBUG_ENABLED
         unsigned child_index = 0;
+#endif
         unsigned in_flow_count = 0;
 
         line->main_size = 0;
@@ -763,7 +769,9 @@ static void ui_flexbox_layout_apply_line(ui_flexbox_layout_context_t *ctx,
                              "cross_size=%g",
                              child_index, str, size_str, item_main_size,
                              item_cross_size);
+#ifdef UI_DEBUG_ENABLED
                 child_index++;
+#endif
                 UI_DEBUG_END;
                 if (line->cross_size < item_cross_size) {
                         line->cross_size = item_cross_size;
@@ -791,7 +799,9 @@ static void ui_flexbox_layout_apply_main_size(ui_flexbox_layout_context_t *ctx)
         float hint_cross_size = column ? ctx->resizer->hint.max_width
                                        : ctx->resizer->hint.max_height;
         float space, flex_space, margin_space;
+#ifdef UI_DEBUG_ENABLED
         unsigned child_index = 0;
+#endif
 
         UI_DEBUG_BEGIN;
         UI_DEBUG_MSG("%s: begin, max_main_size=%g", __FUNCTION__,
@@ -812,7 +822,9 @@ static void ui_flexbox_layout_apply_main_size(ui_flexbox_layout_context_t *ctx)
                                 UI_WIDGET_STR(child, str);
                                 UI_DEBUG_MSG("line[%zu]: children[%u]=%s, skip",
                                              line->index, child_index, str);
+#ifdef UI_DEBUG_ENABLED
                                 child_index++;
+#endif
                                 UI_DEBUG_END;
                                 list_append(&line->items, child);
                                 continue;
@@ -827,7 +839,9 @@ static void ui_flexbox_layout_apply_main_size(ui_flexbox_layout_context_t *ctx)
                                      line->index, child_index, str, size_str,
                                      cs->type_bits.flex_basis, cs->flex_basis,
                                      main_size);
+#ifdef UI_DEBUG_ENABLED
                         child_index++;
+#endif
                         UI_DEBUG_END;
                         if (s->type_bits.flex_wrap == CSS_FLEX_WRAP_WRAP &&
                             line->main_size > 0 &&
