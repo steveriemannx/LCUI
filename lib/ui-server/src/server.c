@@ -277,18 +277,15 @@ static void ui_server_on_destroy_widget(ui_widget_t *widget, ui_event_t *e,
 static void ui_server_refresh_window(ui_connection_t *conn)
 {
         pd_rect_t rect;
-        float scale = css_metrics_actual_scale(&conn->updater->metrics);
 
         ui_widget_mark_dirty_rect(conn->widget, NULL, UI_BOX_TYPE_GRAPH_BOX);
         ui_compute_rect(&rect, &conn->widget->canvas_box);
         ptk_window_set_title(conn->window, conn->widget->title);
         if (conn->widget->computed_style.type_bits.top == CSS_TOP_AUTO) {
-                rect.y =
-                    (int)((ptk_screen_get_height() - rect.height * scale) / 2);
+                rect.y = (ptk_screen_get_height() - rect.height) / 2;
         }
         if (conn->widget->computed_style.type_bits.left == CSS_LEFT_AUTO) {
-                rect.x =
-                    (int)((ptk_screen_get_width() - rect.width * scale) / 2);
+                rect.x = (ptk_screen_get_width() - rect.width) / 2;
         }
         ptk_window_set_size(conn->window, rect.width, rect.height);
         ptk_window_set_position(conn->window, rect.x, rect.y);
