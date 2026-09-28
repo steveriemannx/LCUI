@@ -2,6 +2,10 @@ root {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: auto;
+  height: auto;
+  min-width: 800px;
+  min-height: 600px;
   background-color: #adcdfc;
 }
 
