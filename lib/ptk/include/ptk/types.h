@@ -23,7 +23,8 @@ typedef enum {
         PTK_APP_ID_LINUX,
         PTK_APP_ID_LINUX_X11,
         PTK_APP_ID_WIN_DESKTOP,
-        PTK_APP_ID_UWP
+        PTK_APP_ID_UWP,
+        PTK_APP_ID_MACOS
 } ptk_app_id_t;
 
 /** @see

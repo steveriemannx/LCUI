@@ -24,6 +24,9 @@ target("libptk")
         add_options("enable-touch")
         add_files("src/windows/*.c")
         add_links("Shell32")
+    elseif is_plat("macosx") then
+        add_files("src/macos/*.c", "src/macos/*.m")
+        add_frameworks("AppKit")
     else
         add_files("src/linux/*.c")
         add_packages("libx11")
@@ -44,4 +47,3 @@ target("libptk-tests")
     add_deps("ctest", "libptk")
     add_rules("tests.runnable")
     add_tests("default", {group = "tests"})
-

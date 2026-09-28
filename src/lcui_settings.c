@@ -184,7 +184,11 @@ static char *lcui_settings_get_config_root(void)
                 return lcui_join_path(base, "AppData/Roaming");
         }
 #elif defined(__APPLE__)
-        const char *base = getenv("HOME");
+        const char *base = getenv("XDG_CONFIG_HOME");
+        if (base && base[0] != 0) {
+                return y_strdup(base);
+        }
+        base = getenv("HOME");
         if (base && base[0] != 0) {
                 return lcui_join_path(base, "Library/Application Support");
         }

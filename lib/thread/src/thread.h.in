@@ -36,7 +36,13 @@ ${define LIBTHREAD_STATIC_BUILD}
 extern "C" {
 #endif
 
+#ifdef _WIN32
 typedef unsigned long thread_t;
+#else
+#include <pthread.h>
+typedef pthread_t thread_t;
+#endif
+
 typedef union thread_mutex_record_t *thread_mutex_t;
 typedef union thread_cond_record_t *thread_cond_t;
 

@@ -14,6 +14,9 @@
 #include <string.h>
 #include "ptk/app.h"
 #include "linux/x11clipboard.h"
+#ifdef PTK_MACOS
+#include "macos/app.h"
+#endif
 #ifdef PTK_WIN_DESKTOP
 #include "windows/win32clipboard.h"
 #endif
@@ -25,6 +28,9 @@ static struct ptk_clipboard_module {
 
 int ptk_clipboard_request_text(ptk_clipboard_callback_t callback, void *arg)
 {
+#ifdef PTK_MACOS
+        return ptk_macos_clipboard_request_text(callback, arg);
+#endif
 #ifdef PTK_HAS_LIBX11
         if (ptk_get_app_id() == PTK_APP_ID_LINUX_X11) {
                 return ptk_x11clipboard_request_text(callback, arg);
@@ -55,6 +61,9 @@ int ptk_clipboard_request_text(ptk_clipboard_callback_t callback, void *arg)
 
 int ptk_clipboard_set_text(const wchar_t *text, size_t len)
 {
+#ifdef PTK_MACOS
+        return ptk_macos_clipboard_set_text(text, len);
+#endif
 #ifdef PTK_HAS_LIBX11
         if (ptk_get_app_id() == PTK_APP_ID_LINUX_X11) {
                 return ptk_x11clipboard_set_text(text, len);

@@ -48,6 +48,39 @@ static void lcui_windows_fonts_init(void)
         pd_font_family_set_alias("monospace", "Consolas");
 }
 
+#elif defined(PTK_MACOS)
+
+static void lcui_macos_fonts_init(void)
+{
+        bool has_default = false;
+        const char *family_name = "inconsolata";
+#ifdef PANDAGL_HAS_FREETYPE
+        static const struct {
+                const char *path;
+                const char *family_name;
+        } fonts[] = { { "/System/Library/Fonts/SFNS.ttf", "System Font" },
+                      { "/System/Library/Fonts/Supplemental/Arial.ttf",
+                        "Arial" } };
+        size_t i;
+
+        for (i = 0; i < sizeof(fonts) / sizeof(fonts[0]); ++i) {
+                if (pd_font_load_file(fonts[i].path) == 0 &&
+                    lcui_fonts_set_default(fonts[i].family_name)) {
+                        family_name = fonts[i].family_name;
+                        has_default = true;
+                        break;
+                }
+        }
+#endif
+        if (!has_default) {
+                lcui_fonts_set_default(family_name);
+        }
+        pd_font_family_set_alias("serif", family_name);
+        pd_font_family_set_alias("sans-serif", family_name);
+        pd_font_family_set_alias("system-ui", family_name);
+        pd_font_family_set_alias("monospace", family_name);
+}
+
 #else
 
 #ifdef HAVE_FONTCONFIG
@@ -121,6 +154,8 @@ void lcui_fonts_init(void)
 {
 #ifdef PTK_WIN32
         lcui_windows_fonts_init();
+#elif defined(PTK_MACOS)
+        lcui_macos_fonts_init();
 #elif defined(HAVE_FONTCONFIG)
         logger_debug("[font] fontconfig enabled\n");
         lcui_fc_fonts_init();

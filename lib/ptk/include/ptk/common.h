@@ -45,6 +45,8 @@
 #else
 #define PTK_WIN_DESKTOP
 #endif
+#elif defined(__APPLE__)
+#define PTK_MACOS
 #else
 #define PTK_LINUX
 #endif

@@ -238,7 +238,9 @@ void ptk_ime_init(void)
 #ifdef PTK_UWP
         return;
 #else
-#ifdef PTK_WIN_DESKTOP
+#ifdef PTK_MACOS
+        return;
+#elif defined(PTK_WIN_DESKTOP)
         ptk_ime_select(ptk_ime_add_win32());
 #else
         ptk_ime_select(ptk_ime_add_linux());
