@@ -187,15 +187,20 @@ static unsigned resolve_glyph_index(unsigned ch, int font_id)
 #include <fontconfig/fontconfig.h>
 #endif
 
-char *pd_font_find_path(const char *name)
-{
 #ifdef PANDAGL_HAS_FONTCONFIG
-        char *path = NULL;
-        size_t path_len;
+
+/**
+ * 用 fontconfig 查找与 name 匹配的字体，并取出其中的字符串属性。
+ * 未找到匹配的字体时返回 NULL。
+ */
+static char *pd_font_fc_match_string(const char *name, const char *object)
+{
+        char *value = NULL;
+        size_t value_len;
 
         FcResult result;
         FcPattern *font;
-        FcChar8 *file = NULL;
+        FcChar8 *data = NULL;
         FcConfig *config = FcInitLoadConfigAndFonts();
         FcPattern *pat = FcNameParse((const FcChar8 *)name);
 
@@ -203,12 +208,12 @@ char *pd_font_find_path(const char *name)
         FcDefaultSubstitute(pat);
 
         if ((font = FcFontMatch(config, pat, &result))) {
-                if (FcPatternGetString(font, FC_FILE, 0, &file) ==
+                if (FcPatternGetString(font, object, 0, &data) ==
                     FcResultMatch) {
-                        path_len = strlen((char *)file);
-                        path = (char *)malloc(path_len + 1);
-                        strncpy(path, (char *)file, path_len);
-                        path[path_len] = 0;
+                        value_len = strlen((char *)data);
+                        value = (char *)malloc(value_len + 1);
+                        strncpy(value, (char *)data, value_len);
+                        value[value_len] = 0;
                 }
                 FcPatternDestroy(font);
         }
@@ -216,7 +221,24 @@ char *pd_font_find_path(const char *name)
         FcPatternDestroy(pat);
         FcConfigDestroy(config);
 
-        return path;
+        return value;
+}
+
+#endif
+
+char *pd_font_find_path(const char *name)
+{
+#ifdef PANDAGL_HAS_FONTCONFIG
+        return pd_font_fc_match_string(name, FC_FILE);
+#else
+        return NULL;
+#endif
+}
+
+char *pd_font_find_family(const char *name)
+{
+#ifdef PANDAGL_HAS_FONTCONFIG
+        return pd_font_fc_match_string(name, FC_FAMILY);
 #else
         return NULL;
 #endif
@@ -526,7 +548,7 @@ static pd_font_weight_t find_bolder_weight(font_style_node_t *snode,
                                            pd_font_weight_t weight)
 {
         for (weight += 1; weight <= PD_FONT_WEIGHT_BLACK; weight += 1) {
-                if (snode->weights[weight]) {
+                if (snode->weights[weight - 1]) {
                         return weight;
                 }
         }
@@ -537,7 +559,7 @@ static pd_font_weight_t find_lighter_weight(font_style_node_t *snode,
                                             pd_font_weight_t weight)
 {
         for (weight -= 1; weight >= PD_FONT_WEIGHT_THIN; weight -= 1) {
-                if (snode->weights[weight]) {
+                if (snode->weights[weight - 1]) {
                         return weight;
                 }
         }
@@ -551,11 +573,24 @@ static pd_font_weight_t find_lighter_weight(font_style_node_t *snode,
 static pd_font_weight_t font_weight_fallback(font_style_node_t *snode,
                                              pd_font_weight_t weight)
 {
+        pd_font_weight_t found;
+
         if (weight > PD_FONT_WEIGHT_MEDIUM) {
-                return find_bolder_weight(snode, weight);
+                found = find_bolder_weight(snode, weight);
+                if (found != PD_FONT_WEIGHT_NONE) {
+                        return found;
+                }
+                // 没有更粗的字体可用时，规范要求继续查找更细的字体，
+                // 否则像 font-weight: 600 这样只有常规体可用的字族会
+                // 匹配不到任何字体
+                return find_lighter_weight(snode, weight);
         }
         if (weight < PD_FONT_WEIGHT_NORMAL) {
-                return find_lighter_weight(snode, weight);
+                found = find_lighter_weight(snode, weight);
+                if (found != PD_FONT_WEIGHT_NONE) {
+                        return found;
+                }
+                return find_bolder_weight(snode, weight);
         }
         if (weight == PD_FONT_WEIGHT_NORMAL) {
                 if (snode->weights[PD_FONT_WEIGHT_MEDIUM - 1]) {

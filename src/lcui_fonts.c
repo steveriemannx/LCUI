@@ -89,7 +89,7 @@ static void lcui_fc_fonts_init(void)
 {
         size_t i;
         bool has_default = false;
-        char *path;
+        char *path, *family;
         const char *fonts[] = { "Ubuntu", "Noto Sans CJK SC",
                                 "WenQuanYi Micro Hei" };
 
@@ -97,10 +97,17 @@ static void lcui_fc_fonts_init(void)
                 path = pd_font_find_path(fonts[i]);
                 pd_font_load_file(path);
                 free(path);
-                // TODO: 使用系统已设置的默认字体
-                if (!has_default) {
-                        has_default = lcui_fonts_set_default(fonts[i]);
+                if (has_default) {
+                        continue;
                 }
+                // TODO: 使用系统已设置的默认字体
+                // fontconfig 会把字族名匹配到系统上实际存在的字体，其字族名
+                // 不一定和请求的名称相同，所以要用匹配结果的字族名来设置默认
+                // 字体，否则默认字体一直是内置的位图字体。
+                family = pd_font_find_family(fonts[i]);
+                has_default =
+                    lcui_fonts_set_default(family ? family : fonts[i]);
+                free(family);
         }
 }
 

@@ -79,6 +79,14 @@ PD_PUBLIC int pd_canvas_mix_glyph_bitmap(pd_canvas_t *graph, pd_pos_t pos,
 PD_PUBLIC char *pd_font_find_path(const char *name);
 
 /**
+ * 查找与名称匹配的字体的字族名。
+ * fontconfig 匹配到的字体，其字族名不一定和请求的名称相同，需要用它来
+ * 设置默认字体，否则按请求的名称查询不到字体。
+ * 未找到匹配的字体时返回 NULL，返回的字符串需由调用者释放。
+ */
+PD_PUBLIC char *pd_font_find_family(const char *name);
+
+/**
  * 根据字符串内容猜测字体粗细程度
  * 文档：https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight
  */
