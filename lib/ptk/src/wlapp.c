@@ -136,9 +136,9 @@ static void wl_registry_global(void *data, struct wl_registry *registry,
                                              &wl_shm_interface, 1);
                 wl_shm_add_listener(wlapp.shm, &shm_listener, NULL);
         } else if (strcmp(interface, wl_seat_interface.name) == 0) {
-                wlapp.seat = wl_registry_bind(
+                ptk_wlinput_bind_seat(wl_registry_bind(
                     registry, name, &wl_seat_interface,
-                    version < 5 ? version : 5);
+                    version < 5 ? version : 5));
         } else if (strcmp(interface, wl_output_interface.name) == 0) {
                 wlapp.output = wl_registry_bind(
                     registry, name, &wl_output_interface,
@@ -354,6 +354,12 @@ static int ptk_wlapp_init(const wchar_t *name)
         wlapp.output_scale = 1;
         list_create(&wlapp.windows);
         list_create(&wlapp.listeners);
+        /*
+         * The xkb context has to be ready before the seat listener can be
+         * handed a keymap, and that listener is attached from the registry
+         * handler below.
+         */
+        ptk_wlinput_init();
         wlapp.registry = wl_display_get_registry(wlapp.display);
         wl_registry_add_listener(wlapp.registry, &registry_listener, NULL);
         /* The first round trip binds the globals, the second one delivers the
@@ -389,7 +395,6 @@ static int ptk_wlapp_init(const wchar_t *name)
                              "have no decorations\n");
         }
 #endif
-        ptk_wlinput_init();
         wlapp.active = true;
         wlapp.should_quit = false;
         return 0;

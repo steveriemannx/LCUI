@@ -478,16 +478,26 @@ static const struct wl_seat_listener seat_listener = {
 
 void ptk_wlinput_init(void)
 {
-        if (!wlapp.seat) {
+        if (wlinput.xkb_context) {
                 return;
         }
-        wlinput.xkb_context =
-            xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+        wlinput.xkb_context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
         if (!wlinput.xkb_context) {
                 logger_error("[wl] failed to create the xkb context\n");
-                return;
         }
-        wl_seat_add_listener(wlapp.seat, &seat_listener, NULL);
+}
+
+void ptk_wlinput_bind_seat(struct wl_seat *seat)
+{
+        wlapp.seat = seat;
+        /*
+         * The compositor announces the seat capabilities only once, right
+         * after the seat is bound, so the listener has to be attached here
+         * rather than after the registry round trips - by then the event has
+         * already been dispatched to a proxy with no listener and is lost,
+         * and neither a pointer nor a keyboard is ever created.
+         */
+        wl_seat_add_listener(seat, &seat_listener, NULL);
 }
 
 void ptk_wlinput_destroy(void)

@@ -127,6 +127,8 @@ void ptk_wlwindow_destroy(ptk_window_t *wnd);
 
 void ptk_wlinput_init(void);
 void ptk_wlinput_destroy(void);
+/** Attach the seat listener; must be called from the registry handler */
+void ptk_wlinput_bind_seat(struct wl_seat *seat);
 
 /** Mark the whole window as damaged; call this after the canvas was recreated */
 void ptk_wlwindow_damage_all(ptk_window_t *wnd);
