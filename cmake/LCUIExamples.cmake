@@ -36,7 +36,7 @@ else()
     message(STATUS "Cairo was not found; the pandagl Cairo example is omitted")
 endif()
 
-foreach(example hello todolist)
+foreach(example hello todolist counter counter_code)
     lcui_add_example(${example} "examples/${example}" lcui)
     if(EXISTS "${PROJECT_SOURCE_DIR}/examples/${example}/app")
         install(DIRECTORY "${PROJECT_SOURCE_DIR}/examples/${example}/app/"
