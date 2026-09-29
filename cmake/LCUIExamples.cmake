@@ -6,6 +6,17 @@ function(lcui_add_example target source_dir)
     add_executable(${target} ${sources})
     target_compile_definitions(${target} PRIVATE UNICODE _CRT_SECURE_NO_WARNINGS)
     target_link_libraries(${target} PRIVATE ${ARGN})
+    # These are GUI programs, so on Windows they belong to the WINDOWS
+    # subsystem and must not pop up a console. mainCRTStartup keeps the
+    # ordinary main() the examples are written with as the entry point.
+    if(WIN32)
+        if(MSVC)
+            target_link_options(${target} PRIVATE
+                /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup)
+        else()
+            target_link_options(${target} PRIVATE -mwindows)
+        endif()
+    endif()
     set_target_properties(${target} PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/examples/${target}"
     )
