@@ -21,7 +21,7 @@
 
 #define MOUSE_WHEEL_DELTA 20
 
-/* evdev 的按键号，Linux 和 FreeBSD 的 input 层相同 */
+/* evdev button codes; the input layer is the same on Linux and FreeBSD */
 #define BTN_LEFT 0x110
 #define BTN_RIGHT 0x111
 #define BTN_MIDDLE 0x112
@@ -34,7 +34,7 @@ static struct {
         struct xkb_keymap *xkb_keymap;
         struct xkb_state *xkb_state;
 
-        /** 指针最近一次的位置，按键事件不带坐标，需要用这个值 */
+        /** Last pointer position; button events carry no coordinates of their own */
         int pointer_x;
         int pointer_y;
 } wlinput;
@@ -66,8 +66,9 @@ static void wl_pointer_enter(void *data, struct wl_pointer *pointer,
         wlinput.pointer_x = wl_fixed_to_int(sx);
         wlinput.pointer_y = wl_fixed_to_int(sy);
         /*
-         * 传入 NULL 表示由合成器决定光标外观，LCUI 自己就不需要画光标了，
-         * 这一点和 X11 后端调用 ui_cursor_hide() 是一致的。
+         * Passing NULL lets the compositor pick the cursor, which is why
+         * LCUI does not draw one of its own - the same thing the X11
+         * backend gets by calling ui_cursor_hide().
          */
         wl_pointer_set_cursor(pointer, serial, NULL, 0, 0);
         ptk_wlinput_post_mouse(PTK_EVENT_MOUSEMOVE, wnd, wlinput.pointer_x,
@@ -142,7 +143,8 @@ static void wl_pointer_axis(void *data, struct wl_pointer *pointer,
         }
         e.type = PTK_EVENT_WHEEL;
         e.window = wlapp.pointer_window;
-        /* 合成器中向下滚动是正值，而 LCUI 沿用 X11 的约定：向上为正值 */
+        /* The compositor reports scrolling down as positive, LCUI follows the
+           X11 convention of positive being up */
         e.wheel.delta_y = v > 0 ? -MOUSE_WHEEL_DELTA : MOUSE_WHEEL_DELTA;
         ptk_post_event(&e);
 }
@@ -192,9 +194,9 @@ static const struct wl_pointer_listener pointer_listener = {
 };
 
 /**
- * 把 keysym 转成 LCUI 的按键码。
- * 与 X11 后端的 convert_keycode() 对应，只是 xkbcommon 的常量前缀是
- * XKB_KEY_ 而不是 XK_，两者的取值完全相同。
+ * Turn a keysym into one of LCUI's key codes.
+ * This mirrors convert_keycode() in the X11 backend; xkbcommon names the
+ * constants XKB_KEY_* rather than XK_*, but the values are identical.
  */
 static int convert_keycode(xkb_keysym_t keysym)
 {
@@ -264,7 +266,8 @@ static int convert_keycode(xkb_keysym_t keysym)
         default:
                 break;
         }
-        /* 字母统一成大写，数字和空格保持原值（与 X11 后端一致） */
+        /* Letters are upper-cased, digits and space keep their value, as in the
+           X11 backend */
         if (keysym >= XKB_KEY_a && keysym <= XKB_KEY_z) {
                 return (int)(keysym - XKB_KEY_a + 'A');
         }
@@ -333,7 +336,7 @@ static void wl_keyboard_key(void *data, struct wl_keyboard *keyboard,
         e.key.meta_key = wl_keyboard_mod_active(XKB_MOD_NAME_LOGO);
         ptk_post_event(&e);
         if (state == WL_KEYBOARD_KEY_STATE_PRESSED) {
-                /* Wayland 下没有 X11 输入法兜底，文本要由后端直接产出 */
+                /* No X11 input method to fall back on here, so text is produced directly */
                 wl_keyboard_post_text(key);
         }
 }
@@ -391,7 +394,7 @@ static void wl_keyboard_keymap(void *data, struct wl_keyboard *keyboard,
                 xkb_keymap_unref(keymap);
                 return;
         }
-        /* 合成器可能在运行期间更换键盘布局 */
+        /* The compositor may switch keyboard layout while running */
         if (wlinput.xkb_state) {
                 xkb_state_unref(wlinput.xkb_state);
         }

@@ -13,5 +13,6 @@
 
 int ptk_ime_add_win32(void);
 int ptk_ime_add_linux(void);
+int ptk_ime_add_freebsd(void);
 void ptk_ime_destroy(void);
 void ptk_ime_init(void);

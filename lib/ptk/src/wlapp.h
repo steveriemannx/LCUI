@@ -26,14 +26,17 @@
 #include <libdecor.h>
 #endif
 
-/** 每个窗口的共享内存缓冲区数量，至少 2 个才能在上屏的同时绘制下一帧 */
+/**
+ * Shared memory buffers per window.  At least 2 are needed so the next
+ * frame can be drawn while one is still on screen.
+ */
 #define PTK_WL_MAX_BUFFERS 3
 
 typedef struct ptk_wl_buffer {
         struct wl_buffer *handle;
-        /** 该缓冲区在共享内存中的起始地址 */
+        /** Where this buffer starts inside the shared memory pool */
         unsigned char *data;
-        /** 缓冲区是否仍被合成器使用，使用期间不能写入 */
+        /** Set while the compositor holds the buffer; it must not be written to then */
         bool busy;
         ptk_window_t *window;
 } ptk_wl_buffer_t;
@@ -45,12 +48,15 @@ struct ptk_window {
 #ifdef PTK_HAS_LIBDECOR
         struct libdecor_frame *decor_frame;
 #endif
-        /** 窗口的持久画布，UI 绘制到这里，present 时再拷贝到共享内存 */
+        /**
+ * The window's persistent canvas: the UI paints here and present()
+ * copies it into shared memory.
+ */
         pd_canvas_t fb;
 
-        /** list_t<pd_rect_t> 本次需要提交给合成器的脏矩形 */
+        /** list_t<pd_rect_t>, damaged rectangles to hand to the compositor */
         list_t rects;
-        /** list_t<pd_rect_t> 因为缓冲区繁忙而推迟提交的脏矩形 */
+        /** list_t<pd_rect_t>, damage deferred because every buffer was busy */
         list_t pending;
 
         struct wl_shm_pool *pool;
@@ -63,7 +69,7 @@ struct ptk_window {
         int width, height;
         int min_width, min_height;
         int max_width, max_height;
-        /** 尚未处理的 configure 尺寸，宽高为 0 表示由客户端决定 */
+        /** Pending configure size; 0 means the client may choose */
         int configure_pending_width, configure_pending_height;
         bool maximized;
         bool configured;
@@ -95,9 +101,9 @@ typedef struct ptk_wlapp {
         bool should_quit;
         bool active;
 
-        /** 指针当前所在的窗口 */
+        /** Window the pointer is currently over */
         ptk_window_t *pointer_window;
-        /** 键盘焦点所在窗口 */
+        /** Window holding the keyboard focus */
         ptk_window_t *focused_window;
 
         /** list_t<ptk_window_t *> */
@@ -122,7 +128,7 @@ void ptk_wlwindow_destroy(ptk_window_t *wnd);
 void ptk_wlinput_init(void);
 void ptk_wlinput_destroy(void);
 
-/** 让窗口重画整块画布，重建画布后调用 */
+/** Mark the whole window as damaged; call this after the canvas was recreated */
 void ptk_wlwindow_damage_all(ptk_window_t *wnd);
 
 #endif

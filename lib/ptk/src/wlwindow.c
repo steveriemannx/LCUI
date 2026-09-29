@@ -28,7 +28,7 @@
 static void ptk_wlwindow_set_size(ptk_window_t *wnd, int width, int height);
 static void ptk_wlwindow_present(ptk_window_t *wnd);
 
-/** 创建一块可被合成器共享的匿名内存，失败时返回 -1 */
+/** Create an anonymous memory block shareable with the compositor */
 static int ptk_wl_create_shm_file(size_t size)
 {
         char name[64];
@@ -40,7 +40,8 @@ static int ptk_wl_create_shm_file(size_t size)
                 logger_error("[wl] shm_open failed: %s\n", strerror(errno));
                 return -1;
         }
-        /* 立刻取消链接，句柄由 fd 持有，进程退出后自动回收 */
+        /* Unlink right away: the fd keeps it alive and it is reclaimed when
+           the process exits */
         shm_unlink(name);
         if (ftruncate(fd, (off_t)size) < 0) {
                 logger_error("[wl] ftruncate failed: %s\n", strerror(errno));
@@ -97,8 +98,9 @@ static void ptk_wlwindow_free_buffers(ptk_window_t *wnd)
 }
 
 /**
- * 按当前窗口尺寸重建共享内存缓冲池。
- * 合成器拿到的是池 fd 的副本，所以这边取消映射不会影响它正在显示的内容。
+ * Rebuild the shared memory buffer pool for the current window size.
+ * The compositor holds its own copy of the pool fd, so unmapping here does
+ * not disturb what it is currently displaying.
  */
 static int ptk_wlwindow_create_buffers(ptk_window_t *wnd)
 {
@@ -137,7 +139,7 @@ static int ptk_wlwindow_create_buffers(ptk_window_t *wnd)
                                        &buffer_listener, &wnd->buffers[i]);
         }
         wnd->buffer_count = PTK_WL_MAX_BUFFERS;
-        /* 缓冲区已经创建好，池对象本身可以立即销毁 */
+        /* The buffers exist now, the pool object itself can go away */
         wl_shm_pool_destroy(pool);
         wnd->pool_data = data;
         wnd->pool_size = total;
@@ -166,15 +168,17 @@ static void ptk_wlwindow_on_configure(ptk_window_t *wnd, int width, int height,
 
         wnd->maximized = maximized;
         wnd->configured = true;
-        /* 合成器给的尺寸和请求的不一致时，按它的来重建画布 */
+        /* The compositor chose a different size: recreate the canvas with it */
         if (width >= 1 && height >= 1 &&
             (width != wnd->width || height != wnd->height)) {
                 ptk_wlwindow_set_size(wnd, width, height);
                 resized = true;
         }
         /*
-         * 组件树的尺寸只由这个事件提供，所以第一次必须发；之后只在尺寸真的
-         * 变化时才发，否则合成器每次 configure 都会带来一次整窗口重绘。
+         * The widget tree learns the window size from this event alone, so
+         * the first one always goes out.  Later ones only when the size
+         * really changed, otherwise every configure would repaint the whole
+         * window.
          */
         if (!first && !resized) {
                 return;
@@ -196,8 +200,9 @@ static void ptk_wlwindow_post_close(ptk_window_t *wnd)
 }
 
 /*
- * xdg-shell 的监听器始终编译：即使构建时启用了 libdecor，运行时也可能
- * 因为找不到装饰插件而退回无装饰的 xdg_toplevel 路径。
+ * The xdg-shell listeners are always compiled: even with libdecor enabled
+ * at build time it can be unavailable at run time, and the window then
+ * falls back to a plain, undecorated xdg_toplevel.
  */
 static void xdg_surface_configure(void *data, struct xdg_surface *surface,
                                   uint32_t serial)
@@ -229,8 +234,8 @@ static void xdg_toplevel_configure(void *data, struct xdg_toplevel *toplevel,
                 }
         }
         /*
-         * 宽高为 0 表示由客户端自己决定尺寸，此时沿用当前尺寸，
-         * 避免把窗口缩成 0。
+         * A size of 0 means the client may choose; keep the current size
+         * in that case so the window is not shrunk to nothing.
          */
         wnd->configure_pending_width = width > 0 ? width : wnd->width;
         wnd->configure_pending_height = height > 0 ? height : wnd->height;
@@ -306,7 +311,8 @@ static void wl_decor_frame_commit(struct libdecor_frame *frame, void *data)
         ptk_window_t *wnd = data;
 
         (void)frame;
-        /* 装饰要求重绘主表面，标记为脏，交给下一个渲染帧去提交 */
+        /* The decoration wants the main surface redrawn; mark it damaged and let
+           the next frame submit it */
         ptk_wlwindow_damage_all(wnd);
 }
 
@@ -484,8 +490,9 @@ static void ptk_wlwindow_set_size(ptk_window_t *wnd, int width, int height)
 static void ptk_wlwindow_set_position(ptk_window_t *wnd, int x, int y)
 {
         /*
-         * Wayland 不允许客户端设置窗口的全局位置，这里只记录下来，
-         * 由合成器决定窗口实际出现在哪里。
+         * Wayland gives clients no say in the global window position, so
+         * the value is only recorded here; the compositor decides where the
+         * window actually shows up.
          */
         wnd->x = x;
         wnd->y = y;
@@ -511,7 +518,8 @@ static void ptk_wlwindow_set_title(ptk_window_t *wnd, const wchar_t *title)
         ptk_wlwindow_apply_title(wnd);
 }
 
-/** 只在宽高都有效时才告诉合成器，避免出现 min > max 的无效状态 */
+/** Only forward the hints once both dimensions are set, to avoid an
+ * invalid min > max state */
 static void ptk_wlwindow_apply_size_hints(ptk_window_t *wnd)
 {
 #ifdef PTK_HAS_LIBDECOR
@@ -612,13 +620,13 @@ static void ptk_wlwindow_show(ptk_window_t *wnd)
         wnd->visible = true;
 #ifdef PTK_HAS_LIBDECOR
         if (wnd->decor_frame) {
-                /* libdecor 会在映射后给出 configure，不需要先提交空闲表面 */
+                /* libdecor sends the configure after mapping, no buffer-less commit first */
                 libdecor_frame_map(wnd->decor_frame);
                 return;
         }
 #endif
         if (!wnd->configured) {
-                /* 第一次提交不带缓冲区，用来触发 configure */
+                /* The first commit carries no buffer; it is what triggers configure */
                 wl_surface_commit(wnd->surface);
                 return;
         }
@@ -717,7 +725,8 @@ static void ptk_wlwindow_present(ptk_window_t *wnd)
         }
         buf = ptk_wlwindow_get_free_buffer(wnd);
         if (!buf) {
-                /* 缓冲区都还在合成器手里，保留脏矩形等下次提交 */
+                /* Every buffer is still held by the compositor: keep the rectangles for
+           the next attempt */
                 return;
         }
         for (list_each(node, &wnd->pending)) {

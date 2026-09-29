@@ -101,9 +101,11 @@ static void lcui_fc_fonts_init(void)
                         continue;
                 }
                 // TODO: 使用系统已设置的默认字体
-                // fontconfig 会把字族名匹配到系统上实际存在的字体，其字族名
-                // 不一定和请求的名称相同，所以要用匹配结果的字族名来设置默认
-                // 字体，否则默认字体一直是内置的位图字体。
+                // fontconfig matches the name against whatever the
+                // system actually has, so the family it finds is not
+                // necessarily the one asked for.  Set the default with the
+                // matched family, otherwise it stays on the in-core bitmap
+                // font.
                 family = pd_font_find_family(fonts[i]);
                 has_default =
                     lcui_fonts_set_default(family ? family : fonts[i]);

@@ -22,7 +22,7 @@
 
 #ifdef PTK_LINUX
 
-/** 当前实际使用的后端，用于决定销毁时要回收哪些资源 */
+/** Which backend is in use; decides what to tear down on destroy */
 typedef enum {
         BACKEND_NONE,
         BACKEND_WAYLAND,
@@ -39,8 +39,9 @@ static struct app {
 } linux_app;
 
 /**
- * 按 wayland → x11 → framebuffer 的顺序选择后端。
- * 也可以用 LCUI_BACKEND 环境变量强制指定，方便对比不同后端。
+ * Try the backends in the order wayland -> x11 -> framebuffer.
+ * LCUI_BACKEND may name one of them to force it, which is handy when
+ * comparing them.
  */
 static bool ptk_app_backend_allowed(const char *backend, const char *name)
 {

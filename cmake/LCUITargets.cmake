@@ -84,7 +84,8 @@ target_link_libraries(libthread PUBLIC yutil)
 
 lcui_add_library(libptk lib/ptk FALSE)
 target_link_libraries(libptk PUBLIC yutil pandagl)
-# Wayland 后端位于 lib/ptk/src/*.c，需要让平台层能按名字包含内部头文件
+# Both the Wayland backend and the platform layers that select it live under
+# lib/ptk/src, so let them include each other's headers by name.
 target_include_directories(libptk PRIVATE "${PROJECT_SOURCE_DIR}/lib/ptk/src")
 if(PTK_HAS_LIBWAYLAND)
     set(WAYLAND_GEN_DIR "${PROJECT_BINARY_DIR}/generated/wayland")
@@ -122,7 +123,15 @@ elseif(APPLE)
     target_sources(libptk PRIVATE ${ptk_platform_sources})
     target_link_libraries(libptk PUBLIC "-framework AppKit")
 else()
-    file(GLOB_RECURSE ptk_platform_sources CONFIGURE_DEPENDS "lib/ptk/src/linux/*.c")
+    # FreeBSD has its own platform layer, it shares nothing with the Linux one
+    if(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
+        set(LCUI_PTK_PLATFORM_DIR "lib/ptk/src/freebsd")
+    else()
+        set(LCUI_PTK_PLATFORM_DIR "lib/ptk/src/linux")
+    endif()
+    file(GLOB_RECURSE ptk_platform_sources CONFIGURE_DEPENDS
+        "${LCUI_PTK_PLATFORM_DIR}/*.c"
+    )
     target_sources(libptk PRIVATE ${ptk_platform_sources})
     target_link_libraries(libptk PUBLIC Threads::Threads ${CMAKE_DL_LIBS})
     if(LIBX11_FOUND)

@@ -47,6 +47,8 @@
 #endif
 #elif defined(__APPLE__)
 #define PTK_MACOS
+#elif defined(__FreeBSD__)
+#define PTK_FREEBSD
 #else
 #define PTK_LINUX
 #endif

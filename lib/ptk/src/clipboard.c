@@ -13,7 +13,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include "ptk/app.h"
+#ifdef PTK_FREEBSD
+#include "freebsd/x11clipboard.h"
+#else
 #include "linux/x11clipboard.h"
+#endif
 #ifdef PTK_MACOS
 #include "macos/app.h"
 #endif
@@ -32,7 +36,8 @@ int ptk_clipboard_request_text(ptk_clipboard_callback_t callback, void *arg)
         return ptk_macos_clipboard_request_text(callback, arg);
 #endif
 #ifdef PTK_HAS_LIBX11
-        if (ptk_get_app_id() == PTK_APP_ID_LINUX_X11) {
+        if (ptk_get_app_id() == PTK_APP_ID_LINUX_X11 ||
+            ptk_get_app_id() == PTK_APP_ID_FREEBSD_X11) {
                 return ptk_x11clipboard_request_text(callback, arg);
         }
 #endif
@@ -65,7 +70,8 @@ int ptk_clipboard_set_text(const wchar_t *text, size_t len)
         return ptk_macos_clipboard_set_text(text, len);
 #endif
 #ifdef PTK_HAS_LIBX11
-        if (ptk_get_app_id() == PTK_APP_ID_LINUX_X11) {
+        if (ptk_get_app_id() == PTK_APP_ID_LINUX_X11 ||
+            ptk_get_app_id() == PTK_APP_ID_FREEBSD_X11) {
                 return ptk_x11clipboard_set_text(text, len);
         }
 #endif
@@ -89,7 +95,8 @@ int ptk_clipboard_set_text(const wchar_t *text, size_t len)
 void ptk_clipboard_init(void)
 {
 #ifdef PTK_HAS_LIBX11
-        if (ptk_get_app_id() == PTK_APP_ID_LINUX_X11) {
+        if (ptk_get_app_id() == PTK_APP_ID_LINUX_X11 ||
+            ptk_get_app_id() == PTK_APP_ID_FREEBSD_X11) {
                 ptk_x11clipboard_init();
                 return;
         }
@@ -105,7 +112,8 @@ void ptk_clipboard_init(void)
 void ptk_clipboard_destroy(void)
 {
 #ifdef PTK_HAS_LIBX11
-        if (ptk_get_app_id() == PTK_APP_ID_LINUX_X11) {
+        if (ptk_get_app_id() == PTK_APP_ID_LINUX_X11 ||
+            ptk_get_app_id() == PTK_APP_ID_FREEBSD_X11) {
                 ptk_x11clipboard_destroy();
                 return;
         }

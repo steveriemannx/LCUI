@@ -242,6 +242,8 @@ void ptk_ime_init(void)
         return;
 #elif defined(PTK_WIN_DESKTOP)
         ptk_ime_select(ptk_ime_add_win32());
+#elif defined(PTK_FREEBSD)
+        ptk_ime_select(ptk_ime_add_freebsd());
 #else
         ptk_ime_select(ptk_ime_add_linux());
 #endif

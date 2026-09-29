@@ -190,8 +190,8 @@ static unsigned resolve_glyph_index(unsigned ch, int font_id)
 #ifdef PANDAGL_HAS_FONTCONFIG
 
 /**
- * 用 fontconfig 查找与 name 匹配的字体，并取出其中的字符串属性。
- * 未找到匹配的字体时返回 NULL。
+ * Use fontconfig to find the font matching name and read one of its
+ * string properties.  Returns NULL when nothing matches.
  */
 static char *pd_font_fc_match_string(const char *name, const char *object)
 {
@@ -580,9 +580,10 @@ static pd_font_weight_t font_weight_fallback(font_style_node_t *snode,
                 if (found != PD_FONT_WEIGHT_NONE) {
                         return found;
                 }
-                // 没有更粗的字体可用时，规范要求继续查找更细的字体，
-                // 否则像 font-weight: 600 这样只有常规体可用的字族会
-                // 匹配不到任何字体
+                // With no bolder face available the rules say to look at
+                // the lighter ones next; without that, a family that only
+                // ships a regular face matches nothing for something like
+                // font-weight: 600
                 return find_lighter_weight(snode, weight);
         }
         if (weight < PD_FONT_WEIGHT_NORMAL) {

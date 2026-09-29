@@ -706,7 +706,7 @@ void ui_server_init(void)
         list_create(&ui_server.connections);
         switch (ptk_get_app_id()) {
         case PTK_APP_ID_LINUX_X11:
-        /* Wayland 下光标由合成器绘制 */
+        /* the compositor draws the cursor under Wayland */
         case PTK_APP_ID_WAYLAND:
         case PTK_APP_ID_UWP:
         case PTK_APP_ID_WIN32:

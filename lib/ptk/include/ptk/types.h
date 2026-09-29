@@ -25,7 +25,9 @@ typedef enum {
         PTK_APP_ID_WIN_DESKTOP,
         PTK_APP_ID_UWP,
         PTK_APP_ID_MACOS,
-        /* 追加在末尾，避免改变已有取值 */
+        PTK_APP_ID_FREEBSD,
+        PTK_APP_ID_FREEBSD_X11,
+        /* appended at the end so that existing values do not change */
         PTK_APP_ID_WAYLAND
 } ptk_app_id_t;
 

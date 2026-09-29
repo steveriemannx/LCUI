@@ -19,12 +19,12 @@
 #include <unistd.h>
 #include <yutil.h>
 
-/** 没有输入时也要周期性唤醒，用于驱动动画和定时器 */
+/** Wake up periodically even without input, to drive animations and timers */
 #define WAIT_TIMEOUT_MS 10
 
 ptk_wlapp_t wlapp;
 
-/** 1 个 display fd，libdecor 启用时再加 1 个 */
+/** One display fd, plus one more when libdecor is in use */
 #define MAX_POLL_FDS 2
 
 ptk_window_t *ptk_wlapp_find_window(struct wl_surface *surface)
@@ -216,10 +216,11 @@ static int ptk_wlapp_poll(int timeout_ms)
 }
 
 /**
- * 等待并处理事件。
- * 没有使用 libdecor 时走 wl_display 的标准 prepare_read/read_events 流程；
- * 使用 libdecor 时由 libdecor_dispatch() 负责读取事件（见 libdecor.h 的
- * 说明：libdecor_get_fd() 返回的 fd 可读时应调用 libdecor_dispatch()）。
+ * Wait for and process events.
+ * Without libdecor this follows the usual wl_display
+ * prepare_read/read_events sequence.  With libdecor, libdecor_dispatch()
+ * reads the events instead: as libdecor.h puts it, its dispatch function
+ * should be called once the fd returned by libdecor_get_fd() is readable.
  */
 static int ptk_wlapp_wait(int timeout_ms)
 {
@@ -272,9 +273,10 @@ static int ptk_wlapp_process_events(ptk_process_events_option_t option)
         if (option == PTK_PROCESS_EVENTS_ONE_IF_PRESENT ||
             option == PTK_PROCESS_EVENTS_ALL_IF_PRESENT) {
                 /*
-                 * 只处理当前已经就绪的事件就返回，不能在这里循环等待：
-                 * ui_server_connect() 会以这个选项调用一次，它期待处理完
-                 * 现有事件后马上返回，否则初始化会卡死在这里。
+                 * Process whatever is already queued and return; never
+                 * loop here.  ui_server_connect() calls this once and
+                 * expects it to come back, otherwise initialisation would
+                 * spin forever inside it.
                  */
                 ptk_tick();
                 ptk_wlapp_wait(0);
@@ -354,7 +356,8 @@ static int ptk_wlapp_init(const wchar_t *name)
         list_create(&wlapp.listeners);
         wlapp.registry = wl_display_get_registry(wlapp.display);
         wl_registry_add_listener(wlapp.registry, &registry_listener, NULL);
-        /* 第一轮往返拿到全局对象，第二轮拿到 wl_output 的尺寸和缩放 */
+        /* The first round trip binds the globals, the second one delivers the
+           wl_output size and scale */
         if (wl_display_roundtrip(wlapp.display) < 0 ||
             wl_display_roundtrip(wlapp.display) < 0) {
                 return -2;
