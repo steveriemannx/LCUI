@@ -62,15 +62,18 @@ static void wl_pointer_enter(void *data, struct wl_pointer *pointer,
         ptk_window_t *wnd = ptk_wlapp_find_window(surface);
 
         (void)data;
+        (void)pointer;
+        (void)serial;
         wlapp.pointer_window = wnd;
         wlinput.pointer_x = wl_fixed_to_int(sx);
         wlinput.pointer_y = wl_fixed_to_int(sy);
         /*
-         * Passing NULL lets the compositor pick the cursor, which is why
-         * LCUI does not draw one of its own - the same thing the X11
-         * backend gets by calling ui_cursor_hide().
+         * The cursor is deliberately left untouched so the compositor keeps
+         * drawing its own; that is the Wayland equivalent of ui_cursor_hide()
+         * on X11, which only stops LCUI from painting a cursor of its own.
+         * Do not call wl_pointer_set_cursor() here: a NULL surface hides the
+         * cursor instead of restoring the compositor's default one.
          */
-        wl_pointer_set_cursor(pointer, serial, NULL, 0, 0);
         ptk_wlinput_post_mouse(PTK_EVENT_MOUSEMOVE, wnd, wlinput.pointer_x,
                                wlinput.pointer_y, 0);
 }
