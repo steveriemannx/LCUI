@@ -4,4 +4,6 @@
 #define PTK_VERSION_ALTER @VERSION_ALTER@
 #cmakedefine PTK_STATIC_BUILD
 #cmakedefine PTK_HAS_LIBX11
+#cmakedefine PTK_HAS_LIBWAYLAND
+#cmakedefine PTK_HAS_LIBDECOR
 #cmakedefine PTK_TOUCH_ENABLED

@@ -9,23 +9,46 @@
  * in the LICENSE.TXT file in the root directory of this source tree.
  */
 
+#include <stdlib.h>
 #include <string.h>
 #include <yutil.h>
 #include "ptk.h"
 #include "mouse.h"
 #include "keyboard.h"
 #include "fbapp.h"
+#include "wlapp.h"
 #include "x11app.h"
 #include "x11clipboard.h"
 
 #ifdef PTK_LINUX
+
+/** 当前实际使用的后端，用于决定销毁时要回收哪些资源 */
+typedef enum {
+        BACKEND_NONE,
+        BACKEND_WAYLAND,
+        BACKEND_X11,
+        BACKEND_FB
+} backend_id_t;
 
 static struct app {
         bool active;
         ptk_window_driver_t window;
         ptk_app_driver_t app;
         ptk_app_id_t id;
+        backend_id_t backend;
 } linux_app;
+
+/**
+ * 按 wayland → x11 → framebuffer 的顺序选择后端。
+ * 也可以用 LCUI_BACKEND 环境变量强制指定，方便对比不同后端。
+ */
+static bool ptk_app_backend_allowed(const char *backend, const char *name)
+{
+        if (!backend) {
+                return true;
+        }
+        return strcmp(backend, name) == 0;
+}
 
 int ptk_process_native_events(ptk_process_events_option_t option)
 {
@@ -198,27 +221,51 @@ ptk_app_id_t ptk_get_app_id(void)
 
 int ptk_app_init(const wchar_t *name)
 {
+        const char *backend = getenv("LCUI_BACKEND");
+
         linux_app.id = PTK_APP_ID_LINUX;
-#ifdef PTK_HAS_LIBX11
-        ptk_x11app_driver_init(&linux_app.app);
-        ptk_x11window_driver_init(&linux_app.window);
-        if (linux_app.app.init(name) == 0) {
-                logger_debug("[app] use engine: x11app\n");
-                linux_app.id = PTK_APP_ID_LINUX_X11;
-                linux_app.active = true;
-                return 0;
+        linux_app.backend = BACKEND_NONE;
+#ifdef PTK_HAS_LIBWAYLAND
+        if (ptk_app_backend_allowed(backend, "wayland")) {
+                ptk_wlapp_driver_init(&linux_app.app);
+                ptk_wlwindow_driver_init(&linux_app.window);
+                if (linux_app.app.init(name) == 0) {
+                        logger_debug("[app] use engine: wayland\n");
+                        linux_app.id = PTK_APP_ID_WAYLAND;
+                        linux_app.backend = BACKEND_WAYLAND;
+                        linux_app.active = true;
+                        return 0;
+                }
+                memset(&linux_app.app, 0, sizeof(linux_app.app));
+                memset(&linux_app.window, 0, sizeof(linux_app.window));
         }
-        memset(&linux_app.app, 0, sizeof(linux_app.app));
-        memset(&linux_app.window, 0, sizeof(linux_app.window));
 #endif
-        logger_debug("[app] use engine: fbapp\n");
-        ptk_fbapp_driver_init(&linux_app.app);
-        ptk_fbwindow_driver_init(&linux_app.window);
-        if (linux_app.app.init(name) == 0) {
-                linux_app.active = true;
-                ptk_linux_mouse_init();
-                ptk_linux_keyboard_init();
-                return 0;
+#ifdef PTK_HAS_LIBX11
+        if (ptk_app_backend_allowed(backend, "x11")) {
+                ptk_x11app_driver_init(&linux_app.app);
+                ptk_x11window_driver_init(&linux_app.window);
+                if (linux_app.app.init(name) == 0) {
+                        logger_debug("[app] use engine: x11app\n");
+                        linux_app.id = PTK_APP_ID_LINUX_X11;
+                        linux_app.backend = BACKEND_X11;
+                        linux_app.active = true;
+                        return 0;
+                }
+                memset(&linux_app.app, 0, sizeof(linux_app.app));
+                memset(&linux_app.window, 0, sizeof(linux_app.window));
+        }
+#endif
+        if (ptk_app_backend_allowed(backend, "fb")) {
+                logger_debug("[app] use engine: fbapp\n");
+                ptk_fbapp_driver_init(&linux_app.app);
+                ptk_fbwindow_driver_init(&linux_app.window);
+                if (linux_app.app.init(name) == 0) {
+                        linux_app.backend = BACKEND_FB;
+                        linux_app.active = true;
+                        ptk_linux_mouse_init();
+                        ptk_linux_keyboard_init();
+                        return 0;
+                }
         }
         return -1;
 }
@@ -229,7 +276,7 @@ int ptk_app_destroy(void)
                 return -1;
         }
         linux_app.active = false;
-        if (linux_app.id != PTK_APP_ID_LINUX_X11) {
+        if (linux_app.backend == BACKEND_FB) {
                 ptk_linux_mouse_destroy();
                 ptk_linux_keyboard_destroy();
         }
