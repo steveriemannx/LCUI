@@ -35,7 +35,7 @@ void pd_style_tags_clear(list_t *tags)
         list_destroy(tags, free);
 }
 
-/** 获取当前的文本样式 */
+/** Get the current text style */
 pd_text_style_t *pd_style_tags_get_text_style(list_t *tags)
 {
         int count = 0;
@@ -49,7 +49,7 @@ pd_text_style_t *pd_style_tags_get_text_style(list_t *tags)
         }
         style = malloc(sizeof(pd_text_style_t));
         pd_text_style_init(style);
-        /* 根据已经记录的各种样式，生成当前应有的文本样式 */
+        /* Build the current text style from the recorded styles */
         for (list_each(node, tags)) {
                 tag = node->data;
                 switch (tag->id) {
@@ -110,7 +110,7 @@ pd_text_style_t *pd_style_tags_get_text_style(list_t *tags)
         return style;
 }
 
-/** 将指定标签的样式数据从队列中删除，只删除队列头部第一个匹配的标签 */
+/** Remove a tag's style data from the queue, only the first match */
 static void pd_style_tags_remove(list_t *tags, int id)
 {
         pd_style_tag_t *tag;
@@ -129,7 +129,7 @@ static void pd_style_tags_remove(list_t *tags, int id)
         }
 }
 
-/** 在字符串中获取样式的结束标签，输出的是标签名 */
+/** Get a style close tag from a string, the tag name is output */
 const wchar_t *pd_scan_style_close_tag(const wchar_t *wstr, wchar_t *name)
 {
         size_t i, j, len;
@@ -138,7 +138,7 @@ const wchar_t *pd_scan_style_close_tag(const wchar_t *wstr, wchar_t *name)
         if (wstr[0] != '[' || wstr[1] != '/') {
                 return NULL;
         }
-        /* 匹配标签,获取标签名 */
+        /* Match the tag and get the tag name */
         for (j = 0, i = 2; i < len; ++i) {
                 switch (wstr[i]) {
                 case ' ':
@@ -165,7 +165,7 @@ end_tag_search:;
         return wstr + i;
 }
 
-/** 从字符串中获取样式标签的名字及样式属性 */
+/** Get the name and attributes of a style open tag from a string */
 const wchar_t *pd_scan_style_open_tag(const wchar_t *wstr, wchar_t *name,
                                       int max_name_len, wchar_t *data)
 {
@@ -176,27 +176,27 @@ const wchar_t *pd_scan_style_open_tag(const wchar_t *wstr, wchar_t *name,
         if (wstr[0] != '<') {
                 return NULL;
         }
-        /* 匹配标签前半部分 */
+        /* Match the first half of the tag */
         for (j = 0, i = 1; i < len; ++i) {
                 if (wstr[i] == ' ') {
-                        /* 如果上个字符不是空格，说明标签名已经结束 */
+                        /* Name ends if the previous char is not a space */
                         if (i > 0 && wstr[i - 1] != ' ') {
                                 end_name = true;
                         }
-                        /* 标签名首部和尾部可包含空格 */
+                        /* The tag name may have spaces at head and tail */
                         if (j == 0 || max_name_len == 0 ||
                             (max_name_len > 0 && end_name)) {
                                 continue;
                         }
-                        /* 标签名中间不能包含空格 */
+                        /* The tag name cannot contain spaces in the middle */
                         return NULL;
                 }
-                /* 如果标签名部分已经匹配完 */
+                /* If the tag name part has been matched completely */
                 if (wstr[i] == '=') {
                         ++i;
                         break;
                 }
-                /* 如果标签名已经结束了 */
+                /* If the tag name has already ended */
                 if (end_name) {
                         return NULL;
                 }
@@ -209,18 +209,18 @@ const wchar_t *pd_scan_style_open_tag(const wchar_t *wstr, wchar_t *name,
         if (data) {
                 name[j] = 0;
         }
-        /* 获取标签后半部分 */
+        /* Get the second half of the tag */
         for (j = 0; i < len; ++i) {
                 if (wstr[i] == ' ') {
                         continue;
                 }
-                /* 标签结束，退出 */
+                /* End of the tag, exit */
                 if (wstr[i] == '>') {
                         ++i;
                         break;
                 }
                 if (data) {
-                        /* 保存标签内的数据 */
+                        /* Save the data inside the tag */
                         data[j] = wstr[i];
                 }
                 ++j;
@@ -234,7 +234,7 @@ const wchar_t *pd_scan_style_open_tag(const wchar_t *wstr, wchar_t *name,
         return wstr + i;
 }
 
-/** 在字符串中获取指定样式标签中的数据 */
+/** Get the data of a given style tag from a string */
 static const wchar_t *pd_scan_style_tag_by_name(const wchar_t *wstr,
                                                 const wchar_t *name, char *data)
 {
@@ -245,7 +245,7 @@ static const wchar_t *pd_scan_style_tag_by_name(const wchar_t *wstr,
         if (wstr[0] != '[') {
                 return NULL;
         }
-        /* 匹配标签前半部分 */
+        /* Match the first half of the tag */
         for (j = 0, i = 1; i < len; ++i) {
                 if (wstr[i] == ' ') {
                         if (j == 0 || j >= tag_len) {
@@ -266,17 +266,17 @@ static const wchar_t *pd_scan_style_tag_by_name(const wchar_t *wstr,
                 }
                 return NULL;
         }
-        /* 获取标签后半部分 */
+        /* Get the second half of the tag */
         for (j = 0; i < len; ++i) {
                 if (wstr[i] == ' ') {
                         continue;
                 }
-                /* 标签结束，退出 */
+                /* End of the tag, exit */
                 if (wstr[i] == ']') {
                         ++i;
                         break;
                 }
-                /* 保存标签内的数据 */
+                /* Save the data inside the tag */
                 data[j] = (char)wstr[i];
                 ++j;
         }
@@ -315,7 +315,7 @@ static bool pd_parse_color(const char *str, pd_color_t *value)
         return false;
 }
 
-/** 根据字符串中的标签得到相应的样式数据，并返回指向标签后面字符的指针 */
+/** Get the style data from a tag in a string, return a pointer past it */
 static const wchar_t *pd_scan_style_tag_by_name_data(const wchar_t *wstr,
                                                      pd_style_tag_t *tag)
 {
@@ -363,7 +363,7 @@ const wchar_t *pd_style_tags_next_open_tag(list_t *tags, const wchar_t *str)
         tag = malloc(sizeof(pd_style_tag_t));
         q = pd_scan_style_tag_by_name_data(str, tag);
         if (q) {
-                /* 将标签样式数据加入队列 */
+                /* Add the tag style data to the queue */
                 list_insert(tags, 0, tag);
         } else {
                 free(tag);
@@ -375,12 +375,12 @@ const wchar_t *pd_style_tags_next_close_tag(list_t *tags, const wchar_t *str)
 {
         const wchar_t *p;
         wchar_t tagname[256];
-        /* 获取标签名 */
+        /* Get the tag name */
         p = pd_scan_style_close_tag(str, tagname);
         if (!p) {
                 return NULL;
         }
-        /* 删除相应的样式标签 */
+        /* Remove the corresponding style tag */
         if (wcscmp(tagname, L"color") == 0) {
                 pd_style_tags_remove(tags, PD_TEXT_STYLE_TYPE_COLOR);
         } else if (wcscmp(tagname, L"bgcolor") == 0) {

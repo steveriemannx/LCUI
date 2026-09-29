@@ -203,8 +203,9 @@ static void ui_scrollarea_on_touch(ui_widget_t *w, ui_event_t *e, void *arg)
         }
         if (that->touch_point_id == -1) {
                 point = &e->touch.points[0];
-                /* 如果这个触点的状态不是 TOUCHDOWN，则说明是上次触控拖拽操
-                 * 作时的多余触点，直接忽略这次触控事件 */
+                /* If this touch point is not in the TOUCHDOWN state, it is a
+                 * leftover point from the previous touch drag, so this touch
+                 * event should be ignored */
                 if (point->state != UI_EVENT_TOUCHDOWN) {
                         return;
                 }

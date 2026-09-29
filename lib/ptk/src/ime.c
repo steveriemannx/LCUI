@@ -186,16 +186,16 @@ bool ptk_ime_process_key(ptk_event_t *e)
 {
         bool is_presed = false;
 
-        /* 根据事件类型判定按键状态 */
+        /* The event type tells us whether the key went down or up */
         if (e->type == PTK_EVENT_KEYUP) {
-                /* 如果是 caps lock 按键被释放 */
+                /* Caps lock is being released */
                 if (e->key.code == KEY_CAPITAL) {
                         ptk_ime.enable_caps_lock = !ptk_ime.enable_caps_lock;
                         return false;
                 }
         } else {
                 is_presed = true;
-                /* 如果按下的是 shift 键，但没释放，则直接退出 */
+                /* Shift went down but is still held, nothing to commit */
                 if (e->key.code == KEY_SHIFT) {
                         return false;
                 }

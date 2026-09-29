@@ -433,9 +433,10 @@ void test_css_value(void)
         css_init();
 
         /**
-         * TODO: 添加 <font-family> 测试
-         * 参考：https://developer.mozilla.org/zh-CN/docs/Web/CSS/Value_definition_syntax#%E4%BA%95%E5%8F%B7
-         * 添加支持用 # 号标识值能出现一次或多次，多次时以逗号分隔
+         * TODO: add <font-family> tests
+         * Reference: https://developer.mozilla.org/zh-CN/docs/Web/CSS/Value_definition_syntax#%E4%BA%95%E5%8F%B7
+         * Add support for the # sign, which means a value can appear one or
+         * more times, separated by commas when it appears multiple times
          */
         test_css_valdef("<string>", test_css_valdef_string);
         test_css_valdef("<color>", test_css_valdef_color);

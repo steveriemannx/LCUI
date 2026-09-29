@@ -22,11 +22,11 @@ LIBCSS_PUBLIC int css_add_style_decl(css_selector_t *selector,
                                      const char *space);
 
 /**
- * 从指定组中查找样式表
- * @param[in] group 组号
- * @param[in] name 选择器结点名称，若为 NULL，则根据选择器结点生成名称
- * @param[in] s 选择器
- * @param[out] list 找到的样式表列表，按照权重从大到小排序
+ * Find style sheets from the specified group
+ * @param[in] group group number
+ * @param[in] name selector node name, or NULL to generate one from the node
+ * @param[in] s selector
+ * @param[out] list found style sheets, sorted by weight in descending order
  */
 LIBCSS_PUBLIC int css_query_selector_from_group(int group, const char *name,
                                                 const css_selector_t *s,

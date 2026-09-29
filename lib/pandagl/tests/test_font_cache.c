@@ -15,10 +15,10 @@
 #include <ctest.h>
 
 /*
- * 字形位图缓存的功能测试：
- * - 同一 (face, ch, size) 第二次请求应命中缓存，返回相同指针；
- * - 不同 size 应得到不同 entry；
- * - 渲染失败的字符回退到 .notdef，不应崩溃。
+ * Functional tests for the glyph bitmap cache:
+ * - a second request for (face, ch, size) hits the cache, same pointer;
+ * - different sizes should yield different entries;
+ * - a character that fails to render falls back to .notdef, without crashing.
  */
 
 static void should_return_same_pointer_on_cache_hit(void)
@@ -49,7 +49,7 @@ static void should_not_crash_on_unknown_codepoint(void)
 {
         const pd_glyph_bitmap_t *bmp = NULL;
         const pd_glyph_bitmap_t *fallback = NULL;
-        /* 超出 BMP 的字符大概率没有 glyph，应回退而非崩溃 */
+        /* Chars beyond the BMP likely have no glyph, fall back, no crash */
         int ret = pd_font_cache_get_bitmap(0x10FFFD, -1, 14, &bmp);
         ctest_equal_bool("should return non-positive code", ret <= 0, true);
         ret = pd_font_cache_get_bitmap(0x10FFFC, -1, 14, &fallback);
@@ -63,7 +63,7 @@ static void should_evict_least_recently_used(void)
         const pd_glyph_bitmap_t *bmp = NULL;
         size_t before;
 
-        /* 先用很大上限，预热若干 entry */
+        /* Use a large limit first to warm up several entries */
         pd_font_cache_set_capacity(1024);
         pd_font_cache_get_bitmap('X', -1, 10, &bmp);
         pd_font_cache_get_bitmap('Y', -1, 10, &bmp);
@@ -71,17 +71,17 @@ static void should_evict_least_recently_used(void)
         before = pd_font_cache_count();
         ctest_equal_bool("should hold at least 3 entries", before >= 3, true);
 
-        /* 把上限缩到 2，应立即驱逐 */
+        /* Shrink the limit to 2, eviction should happen at once */
         pd_font_cache_set_capacity(2);
         ctest_equal_uint("count should drop to capacity",
                          (unsigned)pd_font_cache_count(), 2u);
 
-        /* 添加新 entry 时仍不超过上限 */
+        /* Adding a new entry must stay within the limit */
         pd_font_cache_get_bitmap('W', -1, 10, &bmp);
         ctest_equal_uint("count should stay at capacity after new insert",
                          (unsigned)pd_font_cache_count(), 2u);
 
-        /* 恢复无限制 */
+        /* Restore the unlimited capacity */
         pd_font_cache_set_capacity(0);
 }
 

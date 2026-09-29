@@ -423,7 +423,7 @@ static int x11_ptk_process_native_event(void)
                 ptk_process_event(&e);
                 break;
         /**
-         * FIXME: 调用 XDestroyWindow() 后未接收到 DestroyNotify 事件
+         * FIXME: no DestroyNotify event arrives after XDestroyWindow()
          */
         // case DestroyNotify:
         case ClientMessage:

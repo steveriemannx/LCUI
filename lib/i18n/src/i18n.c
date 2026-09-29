@@ -12,10 +12,10 @@
 #include "i18n-private.h"
 
 static struct i18n_module {
-        size_t length;       /**< 语言列表的长度 */
-        wchar_t **languages; /**< 语言列表 */
-        wchar_t *language;   /**< 当前选中的语言 */
-        dict_t *locales;     /**< 文本库 */
+        size_t length;       /**< Length of the language list */
+        wchar_t **languages; /**< Language list */
+        wchar_t *language;   /**< Currently selected language */
+        dict_t *locales;     /**< Text library */
 } i18n = { 0 };
 
 static bool i18n_add_language(const wchar_t *name, dict_t *dict)

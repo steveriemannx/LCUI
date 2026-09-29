@@ -97,12 +97,12 @@ int pd_canvas_mix_glyph_bitmap(pd_canvas_t *graph, pd_pos_t pos,
         if (pos.x > (int)graph->width || pos.y > (int)graph->height) {
                 return -2;
         }
-        /* 获取写入区域 */
+        /* Get the write area */
         w_rect.x = pos.x;
         w_rect.y = pos.y;
         w_rect.width = bmp->width;
         w_rect.height = bmp->rows;
-        /* 获取需要裁剪的区域 */
+        /* Get the area that needs cropping */
         r_rect = pd_rect_crop(&w_rect, graph->width, graph->height);
         w_rect.x += r_rect.x;
         w_rect.y += r_rect.y;
@@ -110,7 +110,7 @@ int pd_canvas_mix_glyph_bitmap(pd_canvas_t *graph, pd_pos_t pos,
         w_rect.height = r_rect.height;
         pd_canvas_quote(&write_slot, graph, &w_rect);
         pd_canvas_get_quote_rect(&write_slot, &w_rect);
-        /* 获取背景图引用的源图形 */
+        /* Get the quoted source canvas of the background */
         graph = pd_canvas_get_quote_source(graph);
         if (graph->color_type == PD_COLOR_TYPE_ARGB) {
                 pd_canvas_mix_glyph_bitmap_argb(graph, &w_rect, bmp, color,

@@ -19,7 +19,7 @@ LCUI_API void ui_textcaret_refresh(ui_widget_t *widget);
 
 LCUI_API void ui_textcaret_set_visible(ui_widget_t *widget, bool visible);
 
-/** 设置闪烁的时间间隔 */
+/** Set the blink time interval */
 LCUI_API void ui_textcaret_set_blink_time(ui_widget_t *widget,
                                           unsigned int n_ms);
 

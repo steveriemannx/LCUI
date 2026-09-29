@@ -213,9 +213,10 @@ static void ui_text_on_sizehint(ui_widget_t *w, ui_sizehint_t *hint)
         }
         if (txt->layer->lines_length > 0) {
                 line = txt->layer->lines[0];
-                // 这里用了简单的做法，取前四个字的宽度作为最小宽度
-                // 严谨点的做法是根据 word-break
-                // 属性值来决定取单词或一个字的宽度
+                // A simple approach is used here: take the width of the
+                // first four characters as the minimum width
+                // A more rigorous approach is based on word-break values to
+                // decide between a word and a single character
                 if (line->length > 4) {
                         hint->min_width = 4.f * line->string[0]->bitmap->width;
                 } else {

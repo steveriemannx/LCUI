@@ -102,7 +102,7 @@ int ui_widget_prepend(ui_widget_t *parent, ui_widget_t *widget)
         widget->parent->update.should_update_children = true;
         node = &widget->node;
         list_insert_node(&parent->children, 0, node);
-        /** 修改它后面的部件的 index 值 */
+        /** Update the index value of the widgets after it */
         node = node->next;
         while (node) {
                 child = node->data;
@@ -216,7 +216,7 @@ int ui_widget_unlink(ui_widget_t *w)
                         ui_widget_add_status(child, "first-child");
                 }
         }
-        /** 修改它后面的部件的 index 值 */
+        /** Update the index value of the widgets after it */
         node = node->next;
         while (node) {
                 child = node->data;

@@ -28,21 +28,21 @@
 
 static struct css_properties_module {
         /**
-         * 样式属性列表
+         * Style property list
          * css_propdef_t*[]
          */
         css_propdef_t **list;
         unsigned list_length;
 
         /**
-         * 简写样式属性列表
+         * Shorthand style property list
          * css_propdef_t*[]
          */
         css_propdef_t **shorthand_list;
         unsigned shorthand_list_length;
 
         /**
-         * 样式属性表，以名称索引
+         * Style property table, indexed by name
          * dict_t<string, css_propdef_t>
          */
         dict_t *map;

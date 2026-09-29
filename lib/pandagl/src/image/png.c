@@ -118,7 +118,7 @@ pd_error_t pd_png_reader_read_header(pd_image_reader_t *reader)
         if (n < PNG_BYTES_TO_CHECK) {
                 return PD_ERROR_IMAGE_HEADER_INVALID;
         }
-        /* 检测数据是否为PNG的签名 */
+        /* Check whether the data is a PNG signature */
         if (!png_check_sig(buf, PNG_BYTES_TO_CHECK)) {
                 return PD_ERROR_IMAGE_TYPE_INCORRECT;
         }
@@ -126,7 +126,7 @@ pd_error_t pd_png_reader_read_header(pd_image_reader_t *reader)
                 return PD_ERROR_IMAGE_READING;
         }
         png_set_sig_bytes(png_ptr, PNG_BYTES_TO_CHECK);
-        /* 读取PNG图片信息 */
+        /* Read the PNG image info */
         png_read_info(png_ptr, info_ptr);
         reader->header.width = png_get_image_width(png_ptr, info_ptr);
         reader->header.height = png_get_image_height(png_ptr, info_ptr);

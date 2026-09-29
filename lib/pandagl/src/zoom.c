@@ -28,7 +28,7 @@ int pd_canvas_zoom(const pd_canvas_t *canvas, pd_canvas_t *buff,
         if (!pd_canvas_is_valid(canvas) || (width <= 0 && height <= 0)) {
                 return -1;
         }
-        /* 获取引用的有效区域，以及指向引用的对象的指针 */
+        /* Get the valid quote area and the pointer to the quoted object */
         pd_canvas_get_quote_rect(canvas, &rect);
         canvas = pd_canvas_get_quote_source_readonly(canvas);
         if (width > 0) {
@@ -45,7 +45,7 @@ int pd_canvas_zoom(const pd_canvas_t *canvas, pd_canvas_t *buff,
                 scale_y = scale_x;
                 height = (int)(0.5 + 1.0 * canvas->height / scale_y);
         }
-        /* 如果保持宽高比 */
+        /* If the aspect ratio is kept */
         if (keep_scale) {
                 if (scale_x < scale_y) {
                         scale_y = scale_x;
@@ -109,7 +109,7 @@ int pd_canvas_zoom_bilinear(const pd_canvas_t *canvas, pd_canvas_t *buff,
         if (!pd_canvas_is_valid(canvas) || (width <= 0 && height <= 0)) {
                 return -1;
         }
-        /* 获取引用的有效区域，以及指向引用的对象的指针 */
+        /* Get the valid quote area and the pointer to the quoted object */
         pd_canvas_get_quote_rect(canvas, &rect);
         canvas = pd_canvas_get_quote_source_readonly(canvas);
         if (width > 0) {
@@ -126,7 +126,7 @@ int pd_canvas_zoom_bilinear(const pd_canvas_t *canvas, pd_canvas_t *buff,
                 scale_y = scale_x;
                 height = (int)(0.5 + 1.0 * canvas->height / scale_y);
         }
-        /* 如果保持宽高比 */
+        /* If the aspect ratio is kept */
         if (keep_scale) {
                 if (scale_x < scale_y) {
                         scale_y = scale_x;

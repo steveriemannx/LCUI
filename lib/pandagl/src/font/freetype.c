@@ -83,7 +83,7 @@ static void pd_freetype_close(void *face)
         FT_Done_Face(face);
 }
 
-/** 转换 FT_GlyphSlot 类型数据为 pd_glyph_bitmap_t */
+/** Convert FT_GlyphSlot data to pd_glyph_bitmap_t */
 static size_t convert_glyph(pd_glyph_bitmap_t *bmp, FT_GlyphSlot slot, int mode)
 {
         int error;
@@ -91,13 +91,13 @@ static size_t convert_glyph(pd_glyph_bitmap_t *bmp, FT_GlyphSlot slot, int mode)
         FT_BitmapGlyph bitmap_glyph;
         FT_Glyph glyph;
 
-        /* 从字形槽中提取一个字形图像
-         * 请注意，创建的FT_Glyph对象必须与FT_Done_Glyph成对使用 */
+        /* Extract a glyph image from the glyph slot
+         * The FT_Glyph object created must be freed with FT_Done_Glyph */
         error = FT_Get_Glyph(slot, &glyph);
         if (error) {
                 return -1;
         }
-        /*---------------------- 打印字体信息 --------------------------
+        /*---------------------- print font info --------------------------
         LOG(" width= %ld,  met->height= %ld\n"
         "horiBearingX = %ld, horiBearingY = %ld, horiAdvance = %ld\n"
         "vertBearingX = %ld, vertBearingY = %ld,  vertAdvance = %ld\n",
@@ -114,11 +114,11 @@ static size_t convert_glyph(pd_glyph_bitmap_t *bmp, FT_GlyphSlot slot, int mode)
         }
         bitmap_glyph = (FT_BitmapGlyph)glyph;
         /*
-         * FT_Glyph_Metrics结构体中保存字形度量，通过face->glyph->metrics结
-         * 构访问，可得到字形的宽、高、左边界距、上边界距、水平跨距等等。
-         * 注意：因为不是所有的字体都包含垂直度量，当FT_HAS_VERTICAL为假时，
-         * vertBearingX，vertBearingY和vertAdvance的值是不可靠的，目前暂不考虑
-         * 此情况的处理。
+         * Glyph metrics are stored in the FT_Glyph_Metrics struct, they are
+         * read via face->glyph->metrics: width, height, bearings, advances.
+         * Note: not all fonts contain vertical metrics, when FT_HAS_VERTICAL
+         * is false, the values of vertBearingX, vertBearingY and vertAdvance
+         * are unreliable, this case is not handled here for now.
          * */
         bmp->top = bitmap_glyph->top;
         bmp->left = bitmap_glyph->left;
@@ -129,10 +129,10 @@ static size_t convert_glyph(pd_glyph_bitmap_t *bmp, FT_GlyphSlot slot, int mode)
         bmp->metrics.bbox_width = slot->face->size->metrics.max_advance >> 6;
         bmp->metrics.bbox_height = slot->face->size->metrics.height >> 6;
         bmp->metrics.hori_advance =
-            slot->metrics.horiAdvance >> 6; /* 水平跨距 */
+            slot->metrics.horiAdvance >> 6; /* horizontal advance */
         bmp->metrics.vert_advance =
-            slot->metrics.vertAdvance >> 6; /* 垂直跨距 */
-        /* 分配内存，用于保存字体位图 */
+            slot->metrics.vertAdvance >> 6; /* vertical advance */
+        /* Allocate memory to store the font bitmap */
         size = bmp->rows * bmp->pitch;
         bmp->buffer = (uint8_t *)malloc(size);
         if (!bmp->buffer) {
@@ -141,18 +141,18 @@ static size_t convert_glyph(pd_glyph_bitmap_t *bmp, FT_GlyphSlot slot, int mode)
         }
 
         switch (bitmap_glyph->bitmap.pixel_mode) {
-                /* 8位灰度位图，直接拷贝 */
+                /* 8-bit grayscale bitmap, copy it directly */
         case FT_PIXEL_MODE_GRAY:
                 memcpy(bmp->buffer, bitmap_glyph->bitmap.buffer, size);
                 break;
-                /* 单色点阵图，需要转换 */
+                /* Monochrome bitmap, needs conversion */
         case FT_PIXEL_MODE_MONO: {
                 FT_Bitmap bitmap;
                 FT_Int x, y;
                 uint8_t *bit_ptr, *byte_ptr;
 
                 FT_Bitmap_New(&bitmap);
-                /* 转换位图bitmap_glyph->bitmap至bitmap，1个像素占1个字节 */
+                /* Convert bitmap_glyph->bitmap to bitmap, 1 byte per pixel */
                 FT_Bitmap_Convert(freetype.library, &bitmap_glyph->bitmap,
                                   &bitmap, 1);
                 bit_ptr = bitmap.buffer;
@@ -166,7 +166,7 @@ static size_t convert_glyph(pd_glyph_bitmap_t *bmp, FT_GlyphSlot slot, int mode)
                 FT_Bitmap_Done(freetype.library, &bitmap);
                 break;
         }
-        /* 其它像素模式的位图，暂时先直接填充255，等需要时再完善 */
+        /* Other pixel modes just get 255 for now, refine when needed */
         default:
                 memset(bmp->buffer, 255, size);
                 break;
@@ -182,13 +182,13 @@ static int pd_freetype_render(pd_glyph_bitmap_t *bmp, unsigned ch,
         FT_UInt index;
         FT_Face ft_face = (FT_Face)font->data;
 
-        /* 设定字体尺寸 */
+        /* Set the font size */
         FT_Set_Pixel_Sizes(ft_face, 0, pixel_size);
         index = FT_Get_Char_Index(ft_face, ch);
         if (index == 0) {
                 ret = -1;
         }
-        /* 载入该字的字形数据 */
+        /* Load the glyph data of this character */
         if (FT_Load_Glyph(ft_face, index, LCUI_FONT_LOAD_FALGS) != 0) {
                 return -2;
         }

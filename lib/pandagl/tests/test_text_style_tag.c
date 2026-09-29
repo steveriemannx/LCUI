@@ -16,20 +16,20 @@
 #include <ctest.h>
 
 /*
- * 这些用例覆盖 pd_text 在 style_tag 模式下对嵌套 [color] / [bgcolor]
- * 标签的处理。bug 是 pd_style_tags_get_text_style 用了 list_each_reverse
- * 反向遍历标签栈，导致嵌套时取到最旧（最外层）的颜色而不是最新（最内
- * 层）的颜色。例如对于
+ * These cases cover how pd_text handles nested [color] / [bgcolor] tags
+ * in style_tag mode. The bug was that pd_style_tags_get_text_style used
+ * list_each_reverse to walk the tag stack backwards, so nesting picked the
+ * oldest (outermost) color instead of the newest (innermost) one. E.g.
  *
  *   [color=#116329]<[color=#0550ae]Field[/color]>[/color]
  *
- * 修复前 "Field" 的 fore_color 是 #116329（外层绿色），修复后应是
- * #0550ae（内层蓝色）。这是 field-basic.tsx 渲染异常（"全部字符都
- * 是 #116329"）的根因。
+ * The fore_color of "Field" was #116329 (the outer green) before the
+ * fix and should be #0550ae (the inner blue) after it. This is the root
+ * cause of the field-basic.tsx rendering issue ("all chars are #116329").
  *
- * 用例通过遍历 pd_text_t 的字符缓冲区（text->lines[0]->string[col]）
- * 检查每个字符的 style->has_fore_color 与 fore_color.r/g/b 来断言，
- * 不依赖字体渲染，因此不调用 pd_font_library_init。
+ * The cases assert on the character buffer of pd_text_t
+ * (text->lines[0]->string[col]): each char's style->has_fore_color and
+ * fore_color.r/g/b. No font rendering, no pd_font_library_init call.
  */
 
 #define GREEN pd_color(255, 0x11, 0x63, 0x29)
@@ -136,16 +136,16 @@ static void should_handle_field_basic_flex_1_line(void)
             L"[color=#0550ae]className[/color]=[color=#0a3069]"
             L"\"flex-1\"[/color]>[/color]");
 
-        /* 期望字符序列与染色（0-indexed）：
-         *   '<'         (0)        绿
-         *   'Field'     (1-5)      蓝
-         *   ' '         (6)        绿
-         *   'className' (7-15)     蓝
-         *   '='         (16)       绿
-         *   '"'         (17)       深蓝
-         *   'flex-1'    (18-23)    深蓝
-         *   '"'         (24)       深蓝
-         *   '>'         (25)       绿
+        /* Expected character sequence and colors (0-indexed):
+         *   '<'         (0)        green
+         *   'Field'     (1-5)      blue
+         *   ' '         (6)        green
+         *   'className' (7-15)     blue
+         *   '='         (16)       green
+         *   '"'         (17)       dark blue
+         *   'flex-1'    (18-23)    dark blue
+         *   '"'         (24)       dark blue
+         *   '>'         (25)       green
          */
         ctest_equal_int("field basic line length", text->lines[0]->length, 26);
 

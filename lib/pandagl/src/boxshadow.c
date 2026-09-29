@@ -10,8 +10,8 @@
  */
 
 /**
- * 本模块的主要用于实现阴影绘制，但不是通用的，仅适用于矩形框，不能用于绘制文
- * 字、多边形等不规则图形的阴影。
+ * This module implements shadow drawing, but it is not generic: it only
+ * works for rectangles, not for text, polygons or other irregular shapes.
  */
 
 #include <math.h>
@@ -53,7 +53,7 @@ typedef struct gradient {
         double a;
 } gradient_t;
 
-/** 初始化渐变生成器 */
+/** Initialize the gradient generator */
 static void gradient_init(gradient_t *g, double t)
 {
         /**
@@ -65,7 +65,7 @@ static void gradient_init(gradient_t *g, double t)
         g->a = 2 * (g->v * t - g->s) / (t * t);
 }
 
-/** 计算渐变后的值 */
+/** Compute the value after the gradient */
 static uint8_t gradient_compute(gradient_t *g, double t, int val)
 {
         val *= g->s - (int)(g->v * t - (g->a * t * t) / 2.0);
@@ -584,7 +584,7 @@ int pd_paint_boxshadow(pd_context_t *ctx, const pd_boxshadow_t *shadow,
         pd_context_t tmp;
         pd_boxshadow_context_t sd_ctx;
 
-        /* 判断容器尺寸是否低于阴影占用的最小尺寸 */
+        /* Check whether the box is smaller than the shadow's minimum size */
         if (box->width < get_boxshadow_width(shadow, 0) ||
             box->height < get_boxshadow_height(shadow, 0)) {
                 return -1;

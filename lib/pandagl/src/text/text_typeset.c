@@ -23,7 +23,7 @@ void pd_text_break_line(pd_text_t *text, int line_num, int col,
 
         line = pd_text_get_line(text, line_num);
         next = pd_text_insert_line(text, line_num + 1);
-        /* 将本行原有的行尾符转移至下一行 */
+        /* Move the original end of line of this line to the next line */
         next->eol = line->eol;
         line->eol = eol;
         for (n = line->length - 1; n >= col; --n) {
@@ -74,9 +74,9 @@ static void pd_text_typeset_line(pd_text_t *text, int line_num)
                 if (!txtchar->bitmap) {
                         continue;
                 }
-                /* 累加行宽度 */
+                /* Accumulate the line width */
                 line_width += txtchar->bitmap->metrics.hori_advance;
-                /* 如果是当前行的第一个字符，或者行宽度没有超过宽度限制 */
+                /* If it is the first char, or the width fits the limit */
                 if (!autowrap || col < 1 || line_width <= max_width) {
                         if (isalpha_(txtchar->code)) {
                         } else {
@@ -94,13 +94,13 @@ static void pd_text_typeset_line(pd_text_t *text, int line_num)
                 return;
         }
         pd_text_update_line_size(text, line);
-        /* 如果本行有换行符，或者是最后一行 */
+        /* If this line has a line break, or it is the last line */
         if (line->eol != PD_TEXT_EOL_NONE ||
             line_num == text->lines_length - 1) {
                 return;
         }
         line_width = line->width;
-        /* 本行的文本宽度未达到限制宽度，需要将下行的文本转移至本行 */
+        /* This line is under the limit, so pull text from the next line */
         if (line->eol == PD_TEXT_EOL_NONE) {
                 pd_text_mark_line_dirty(text, line_num, 0, -1);
                 pd_text_mark_line_dirty(text, line_num + 1, 0, -1);
@@ -109,20 +109,20 @@ static void pd_text_typeset_line(pd_text_t *text, int line_num)
         }
 }
 
-/** 从指定行开始，对文本进行排版 */
+/** Typeset the text starting from the given line */
 void pd_text_typeset(pd_text_t *text, int start_line)
 {
         int line_num;
-        /* 记录排版前各个文本行的矩形区域 */
+        /* Record the rect of each text line before typesetting */
         pd_text_mark_dirty(text, start_line, -1);
         for (line_num = start_line; line_num < text->lines_length; ++line_num) {
                 pd_text_typeset_line(text, line_num);
         }
-        /* 记录排版后各个文本行的矩形区域 */
+        /* Record the rect of each text line after typesetting */
         pd_text_mark_dirty(text, start_line, -1);
 }
 
-/** 设置是否启用多行文本模式 */
+/** Enable or disable multiline text mode */
 void pd_text_set_multiline(pd_text_t *text, bool enabled)
 {
         if (text->multiline_enabled != enabled) {

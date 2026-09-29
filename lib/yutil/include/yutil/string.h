@@ -44,11 +44,11 @@ YUTIL_API wchar_t *y_wcsdup(const wchar_t *str);
 YUTIL_API size_t y_strlower(char *outstr, const char *instr);
 
 /**
- * 清除字符串首尾的字符
- * @param[out] outstr 处理后的字符串
- * @param[in] instr 需要处理的字符串
- * @param[in] charlist 需要清除的字符列表，当为NULL时，默认清除空白符
- * @return 处理后的字符串的长度
+ * Remove the characters at both ends of a string
+ * @param[out] outstr The resulting string
+ * @param[in] instr The string to process
+ * @param[in] charlist Characters to remove; NULL means blanks are removed
+ * @return The length of the resulting string
  */
 YUTIL_API size_t y_strtrim(char *outstr, const char *instr,
                            const char *charlist);
@@ -58,21 +58,21 @@ YUTIL_API size_t y_wcstrim(wchar_t *outstr, const wchar_t *instr,
 YUTIL_API unsigned y_strhash(unsigned hash, const char *str);
 
 /**
- * 字符串替换（原地修改，仅替换第一个匹配）
- * @param[in][out] str 需要处理的字符串，替换成功后字符串内容也会被修改
- * @param[in] max_len 输出字符串的最大长度
- * @param[in] substr 字符串中需要被替换的子字符串
- * @param[in] newstr 替换的新字符串
- * @returns 替换后的字符串长度，若未替换，则返回 0
+ * Replace a substring in a string (in place, only the first match)
+ * @param[in][out] str The string to process, modified in place on success
+ * @param[in] max_len The maximum length of the output string
+ * @param[in] substr The substring in the string to be replaced
+ * @param[in] newstr The new replacement string
+ * @returns The length of the resulting string, or, if nothing was replaced, 0
  */
 YUTIL_API size_t y_strreplace(char *str, size_t max_len, const char *substr,
                               const char *newstr);
 
 /**
- * 分割字符串
- * @param[in] instr 需分割的字符串
- * @param[in] sep 分割标记字符串
- * @param[out] outstrs 分割后的字符串列表
+ * Split a string
+ * @param[in] instr The string to split
+ * @param[in] sep The delimiter string
+ * @param[out] outstrs The resulting string list
  */
 YUTIL_API int y_strsplit(const char *instr, const char *sep, char ***outstrs);
 

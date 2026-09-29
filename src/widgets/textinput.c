@@ -28,23 +28,23 @@
 enum task_type_t { TASK_SET_TEXT, TASK_UPDATE, TASK_TOTAL };
 
 typedef struct ui_textinput {
-        ui_text_style_t style;        /**< 字体样式 */
-        pd_text_t *layer_source;      /**< 实际文本层 */
-        pd_text_t *layer_mask;        /**< 屏蔽后的文本层 */
-        pd_text_t *layer_placeholder; /**< 占位符的文本层 */
-        pd_text_t *layer;             /**< 当前使用的文本层 */
-        ui_widget_t *scrollbars[2];   /**< 两个滚动条 */
-        ui_widget_t *caret;           /**< 文本插入符 */
-        bool is_read_only;            /**< 是否只读 */
-        bool is_multiline_mode;       /**< 是否为多行模式 */
-        bool placeholder_visible;     /**< 是否已经显示占位符 */
-        wchar_t *allow_input_char;    /**< 允许输入的字符 */
-        wchar_t password_char;        /**< 屏蔽符的副本 */
-        size_t text_block_size;       /**< 块大小 */
-        list_t text_blocks;           /**< 文本块缓冲区 */
-        list_t text_tags;             /**< 当前处理的标签列表 */
-        bool tasks[TASK_TOTAL];       /**< 待处理的任务 */
-        thread_mutex_t mutex;         /**< 互斥锁 */
+        ui_text_style_t style;        /**< Font style */
+        pd_text_t *layer_source;      /**< Actual text layer */
+        pd_text_t *layer_mask;        /**< Masked text layer */
+        pd_text_t *layer_placeholder; /**< Placeholder text layer */
+        pd_text_t *layer;             /**< Currently used text layer */
+        ui_widget_t *scrollbars[2];   /**< The two scrollbars */
+        ui_widget_t *caret;           /**< Text caret */
+        bool is_read_only;            /**< Whether it is read-only */
+        bool is_multiline_mode;       /**< Whether it is in multiline mode */
+        bool placeholder_visible;     /**< Whether the placeholder is shown */
+        wchar_t *allow_input_char;    /**< Characters allowed as input */
+        wchar_t password_char;        /**< Copy of the masking character */
+        size_t text_block_size;       /**< Block size */
+        list_t text_blocks;           /**< Text block buffer */
+        list_t text_tags;             /**< List of tags being processed */
+        bool tasks[TASK_TOTAL];       /**< Tasks to be processed */
+        thread_mutex_t mutex;         /**< Mutex */
 } ui_textinput_t;
 
 typedef enum {
@@ -63,13 +63,13 @@ typedef enum {
         TEXTBLOCK_OWNER_PLACEHOLDER
 } textblock_owner_t;
 
-/** 文本块数据结构 */
+/** Text block data structure */
 typedef struct textblock {
-        textblock_type_t type;     /**< 文本块类型 */
-        textblock_owner_t owner;   /**< 所属的文本层 */
-        textblock_action_t action; /**< 指定该文本块的添加方式 */
-        wchar_t *text;             /**< 文本块(段) */
-        size_t length;             /**< 文本块的长度 */
+        textblock_type_t type;     /**< Text block type */
+        textblock_owner_t owner;   /**< Owning text layer */
+        textblock_action_t action; /**< How this text block is added */
+        wchar_t *text;             /**< Text block(paragraph) */
+        size_t length;             /**< Length of the text block */
 } textblock_t;
 
 static ui_widget_prototype_t *ui_textinput_proto;
@@ -215,7 +215,7 @@ static int ui_textinput_add_textblock(ui_widget_t *widget, const wchar_t *wtext,
                 if (!block->text) {
                         return -ENOMEM;
                 }
-                /* 如果未启用样式标签功能 */
+                /* If the style tag feature is not enabled */
                 if (!edit->layer->style_tag_enabled) {
                         for (j = 0; i < len && j < size - 1; ++j, ++i) {
                                 block->text[j] = wtext[i];
@@ -229,7 +229,7 @@ static int ui_textinput_add_textblock(ui_widget_t *widget, const wchar_t *wtext,
                 for (j = 0; i < len && j < size - 1; ++j, ++i) {
                         wchar_t *text;
                         block->text[j] = wtext[i];
-                        /* 检测是否有样式标签 */
+                        /* Check whether there is a style tag */
                         p = pd_scan_style_open_tag(wtext + i, NULL, 0, NULL);
                         if (!p) {
                                 p = pd_scan_style_close_tag(wtext + i, NULL);
@@ -237,13 +237,13 @@ static int ui_textinput_add_textblock(ui_widget_t *widget, const wchar_t *wtext,
                                         continue;
                                 }
                         }
-                        /* 计算标签的长度 */
+                        /* Calculate the length of the tag */
                         tag_len = p - wtext - i;
-                        /* 若当前块大小能够容纳这个标签 */
+                        /* If the current block size can hold this tag */
                         if (j + tag_len <= size - 1) {
                                 continue;
                         }
-                        /* 重新计算该文本块的大小，并重新分配内存空间 */
+                        /* Recalculate the block size and reallocate memory */
                         size = j + tag_len + 1;
                         text = realloc(block->text, sizeof(wchar_t) * size);
                         if (!text) {
@@ -254,7 +254,7 @@ static int ui_textinput_add_textblock(ui_widget_t *widget, const wchar_t *wtext,
                 --i;
                 block->text[j] = 0;
                 block->length = j;
-                /* 添加文本块至缓冲区 */
+                /* Add the text block to the buffer */
                 list_append(&edit->text_blocks, block);
         }
         edit->tasks[TASK_SET_TEXT] = true;
@@ -262,7 +262,7 @@ static int ui_textinput_add_textblock(ui_widget_t *widget, const wchar_t *wtext,
         return 0;
 }
 
-/** 更新文本框内的字体位图 */
+/** Update the font bitmap in the text box */
 static void textinput_process_textblock(ui_widget_t *widget,
                                         textblock_t *txtblk)
 {
@@ -285,11 +285,11 @@ static void textinput_process_textblock(ui_widget_t *widget,
         }
         switch (txtblk->action) {
         case TEXTBLOCK_ACTION_APPEND:
-                /* 将此文本块追加至文本末尾 */
+                /* Append this text block to the end of the text */
                 pd_text_append(layer, txtblk->text, tags);
                 break;
         case TEXTBLOCK_ACTION_INSERT:
-                /* 将此文本块插入至文本插入符所在处 */
+                /* Insert this text block at the text caret */
                 pd_text_insert(layer, txtblk->text, tags);
         default:
                 break;
@@ -308,7 +308,7 @@ static void textinput_process_textblock(ui_widget_t *widget,
         }
 }
 
-/** 更新文本框的文本图层 */
+/** Update the text layer of the text box */
 static void textinput_update_textlayer(ui_widget_t *w)
 {
         float scale;
@@ -655,7 +655,7 @@ static void ui_textinput_on_clipboard_ready(void *arg, ui_widget_t *widget)
         ui_widget_emit_event(widget, e, clipboard);
 }
 
-/** 处理按键事件 */
+/** Handle the key press event */
 static void ui_textinput_on_keydown(ui_widget_t *widget, ui_event_t *e,
                                     void *arg)
 {
@@ -732,7 +732,7 @@ static void ui_textinput_on_keydown(ui_widget_t *widget, ui_event_t *e,
         }
 }
 
-/** 处理输入法对文本框输入的内容 */
+/** Handle the text input from the input method */
 static void ui_textinput_on_textinput(ui_widget_t *widget, ui_event_t *e,
                                       void *arg)
 {
@@ -740,11 +740,11 @@ static void ui_textinput_on_textinput(ui_widget_t *widget, ui_event_t *e,
         wchar_t ch, *text, excludes[8] = L"\b\r\t\x1b";
         ui_textinput_t *edit = ui_widget_get_data(widget, ui_textinput_proto);
 
-        /* 如果不是多行文本编辑模式则删除换行符 */
+        /* If not in multiline edit mode, remove the newline characters */
         if (!edit->is_multiline_mode) {
                 wcscat(excludes, L"\n");
         }
-        /* 如果文本框是只读的 */
+        /* If the text box is read-only */
         if (edit->is_read_only) {
                 return;
         }
@@ -766,13 +766,13 @@ static void ui_textinput_on_textinput(ui_widget_t *widget, ui_event_t *e,
                         text[j++] = ch;
                         continue;
                 }
-                /* 判断当前字符是否为限制范围内的字符 */
+                /* Check whether the current character is in the allowed set */
                 for (j = 0; edit->allow_input_char[j]; ++j) {
                         if (edit->allow_input_char[j] == ch) {
                                 break;
                         }
                 }
-                /* 如果已提前结束循环，则表明当前字符是允许的 */
+                /* If the loop ended early, the current character is allowed */
                 if (edit->allow_input_char[j]) {
                         text[j++] = e->text.text[i];
                         continue;

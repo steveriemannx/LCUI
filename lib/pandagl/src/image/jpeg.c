@@ -63,17 +63,17 @@ static boolean pd_jpeg_reader_on_read(j_decompress_ptr cinfo)
         size = pd_file_reader_read(reader->file_reader, jpeg_reader->buffer,
                                    BUFFER_SIZE);
         if (size <= 0) {
-                /* 将空的输入文件视为致命错误 */
+                /* Treat an empty input file as a fatal error */
                 if (jpeg_reader->start_of_file) {
                         ERREXIT(cinfo, JERR_INPUT_EMPTY);
                 }
                 WARNMS(cinfo, JWRN_JPEG_EOF);
-                /* 插入一个无用的 EOI 标记 */
+                /* Insert a useless EOI marker */
                 jpeg_reader->buffer[0] = (JOCTET)0xFF;
                 jpeg_reader->buffer[1] = (JOCTET)JPEG_EOI;
                 size = 2;
         }
-        /* 设置数据缓存地址和大小，供 jpeg 解码器使用 */
+        /* Set the data buffer address and size for the jpeg decoder */
         jpeg_reader->src.next_input_byte = jpeg_reader->buffer;
         jpeg_reader->src.bytes_in_buffer = size;
         jpeg_reader->start_of_file = false;
@@ -86,7 +86,7 @@ static void pd_jpeg_reader_on_skip(j_decompress_ptr cinfo, long num_bytes)
         pd_jpeg_reader_t *jpeg_reader = (pd_jpeg_reader_t *)cinfo->src;
         pd_image_reader_t *reader = jpeg_reader->base;
 
-        /* 如果跳过的字节数小于当前缓存的数据大小，则直接移动数据读取指针 */
+        /* If skipping less than the buffered data, move the read pointer */
         if (src->bytes_in_buffer > (size_t)num_bytes) {
                 src->next_input_byte += num_bytes;
                 src->bytes_in_buffer -= num_bytes;
@@ -94,7 +94,7 @@ static void pd_jpeg_reader_on_skip(j_decompress_ptr cinfo, long num_bytes)
         }
         num_bytes -= (long)src->bytes_in_buffer;
         pd_file_reader_skip(reader->file_reader, num_bytes);
-        /* 重置当前缓存 */
+        /* Reset the current buffer */
         src->bytes_in_buffer = 0;
         src->next_input_byte = jpeg_reader->buffer;
 }

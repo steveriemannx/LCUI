@@ -30,23 +30,23 @@ PD_INLINE bool pd_rect_is_include(pd_rect_t *a, pd_rect_t *b)
                 b->y >= a->y && b->y + b->height <= a->y + a->height);
 }
 
-/** 根据容器尺寸，获取指定区域中需要裁剪的区域 */
+/** Get the area to crop within the given area from the container size */
 PD_PUBLIC pd_rect_t pd_rect_crop(const pd_rect_t *rect, int container_width,
                                  int container_height);
 
-/** 将矩形区域纠正在容器有效区域内 */
+/** Correct the rectangle to stay inside the valid container area */
 PD_PUBLIC bool pd_rect_correct(pd_rect_t *rect, int container_width,
                                int container_height);
 
-/** 检测矩形是否遮盖另一个矩形 */
+/** Check whether a rectangle covers another rectangle */
 PD_PUBLIC bool pd_rect_is_cover(const pd_rect_t *a, const pd_rect_t *b);
 
 /**
- * 获取两个矩形中的重叠矩形
- * @param[in] a		矩形A
- * @param[in] b		矩形B
- * @param[out] out	矩形A和B重叠处的矩形
- * @returns 如果两个矩形重叠，则返回true，否则返回false
+ * Get the overlapping rectangle of two rectangles
+ * @param[in] a		Rectangle A
+ * @param[in] b		Rectangle B
+ * @param[out] out	The rectangle where A and B overlap
+ * @returns true if the two rectangles overlap, otherwise false
  */
 PD_PUBLIC bool pd_rect_overlap(const pd_rect_t *a, const pd_rect_t *b,
                                pd_rect_t *overlapping_rect);
@@ -60,10 +60,10 @@ PD_INLINE bool pd_rect_is_equal(const pd_rect_t *a, const pd_rect_t *b)
                a->height == b->height;
 }
 
-/** 添加一个脏矩形记录 */
+/** Add a dirty rectangle record */
 PD_PUBLIC int pd_rects_add(list_t *list, pd_rect_t *rect);
 
-/** 删除脏矩形 */
+/** Remove a dirty rectangle */
 PD_PUBLIC int pd_rects_remove(list_t *list, pd_rect_t *rect);
 
 PD_PUBLIC void pd_rects_clear(list_t *list);

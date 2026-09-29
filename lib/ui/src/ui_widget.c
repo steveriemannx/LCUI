@@ -72,8 +72,9 @@ static void ui_widget_on_destroy_child(void *arg)
 
 static void ui_widget_destroy_children(ui_widget_t *w)
 {
-        /* 先释放显示列表，后销毁部件列表，因为部件在这两个链表中的节点是和它共用
-         * 一块内存空间的，销毁部件列表会把部件释放掉，所以把这个操作放在后面 */
+        /* Free the stacking context list before destroying the widget list,
+         * because the widget's nodes in these two lists share the same
+         * memory and destroying the widget list frees the widget */
         list_destroy_without_node(&w->stacking_context, NULL);
         list_destroy_without_node(&w->children, ui_widget_on_destroy_child);
 }
@@ -108,10 +109,10 @@ ui_widget_t *ui_create_widget_with_prototype(const ui_widget_prototype_t *proto)
 
 void ui_widget_add_state(ui_widget_t *w, ui_widget_state_t state)
 {
-        /* 如果部件还处于未准备完毕的状态 */
+        /* If the widget is still not ready */
         if (w->state < UI_WIDGET_STATE_READY) {
                 w->state |= state;
-                /* 如果部件已经准备完毕则触发 ready 事件 */
+                /* Trigger the ready event if the widget is now ready */
                 if (w->state == UI_WIDGET_STATE_READY) {
                         ui_event_t e = { 0 };
                         e.type = UI_EVENT_READY;

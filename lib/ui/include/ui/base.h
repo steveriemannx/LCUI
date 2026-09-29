@@ -116,8 +116,8 @@ LIBUI_PUBLIC bool ui_widget_get_min_height(ui_widget_t *w, float *height);
 // Layout
 
 /**
- * 执行布局前的准备操作
- * 重置布局相关属性，以让它们在布局时被重新计算
+ * Perform the preparation before layout
+ * Reset layout related properties so they are recomputed during layout
  */
 LIBUI_PUBLIC void ui_widget_reset_layout(ui_widget_t *w);
 

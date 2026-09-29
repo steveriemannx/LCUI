@@ -46,7 +46,7 @@ bool css_parse_unit_value(css_style_value_t *s, const char *str)
         if (str == NULL) {
                 return false;
         }
-        /* 先取出数值 */
+        /* Take the numeric value first */
         for (p = str; *p && n < 30; ++p) {
                 if (*p >= '0' && *p <= '9')
                         ;
@@ -372,7 +372,7 @@ void css_init_data_types(void)
         css_register_value_type("string", css_parse_string_value);
         css_register_value_type("number", css_parse_numeric_value);
         css_register_value_type("integer", css_parse_integer_value);
-        /** FIXME: 处理相对路径 */
+        /** FIXME: handle relative paths */
         css_register_value_type("url", css_parse_url_value);
         css_register_value_type("font-family", css_parse_font_family_value);
 }

@@ -44,13 +44,13 @@ void pd_text_update_style_cache(pd_text_t *text)
         if (!text->default_style.has_family) {
                 pd_text_style_set_default_font(&text->default_style);
         }
-        /* 替换缺省字体，确保能够正确应用字体设置 */
+        /* Replace the default font so font settings are applied correctly */
         for (list_each(node, &text->styles)) {
                 pd_text_style_merge(node->data, &text->default_style);
         }
 }
 
-/** 重新载入各个文字的字体位图 */
+/** Reload the font bitmap of every character */
 void pd_text_reload_bitmap(pd_text_t *text)
 {
         int line_num, col;
@@ -87,7 +87,7 @@ static void pd_text_validate_rect(pd_text_t *text, pd_rect_t *area)
 static void pd_text_render_char(pd_text_t *text, pd_char_t *ch,
                                 pd_canvas_t *graph, pd_pos_t ch_pos)
 {
-        /* 判断文字使用的前景颜色，再进行绘制 */
+        /* Determine the foreground color used by the character, then draw */
         if (ch->style && ch->style->has_fore_color) {
                 pd_canvas_mix_glyph_bitmap(graph, ch_pos, ch->bitmap,
                                            ch->style->fore_color);
@@ -140,7 +140,7 @@ int pd_text_render_to(pd_text_t *text, pd_rect_t area, pd_pos_t layer_pos,
         pd_text_line_t *line;
 
         y = text->offset_y;
-        /* 确定可绘制的最大区域范围 */
+        /* Determine the maximum drawable area */
         pd_text_validate_rect(text, &area);
         for (line_num = 0; line_num < text->lines_length; ++line_num) {
                 line = pd_text_get_line(text, line_num);
@@ -150,7 +150,7 @@ int pd_text_render_to(pd_text_t *text, pd_rect_t area, pd_pos_t layer_pos,
                         break;
                 }
         }
-        /* 如果没有可绘制的文本行 */
+        /* If there is no text line to draw */
         if (line_num >= text->lines_length) {
                 return -1;
         }
@@ -158,7 +158,7 @@ int pd_text_render_to(pd_text_t *text, pd_rect_t area, pd_pos_t layer_pos,
                 line = pd_text_get_line(text, line_num);
                 pd_text_render_line(text, &area, canvas, layer_pos, line, y);
                 y += line->height;
-                /* 超出绘制区域范围就不绘制了 */
+                /* Stop drawing once the draw area is exceeded */
                 if (y > area.y + area.height) {
                         break;
                 }
@@ -166,7 +166,7 @@ int pd_text_render_to(pd_text_t *text, pd_rect_t area, pd_pos_t layer_pos,
         return 0;
 }
 
-/** 设置全局文本样式 */
+/** Set the global text style */
 void pd_text_set_style(pd_text_t *text, pd_text_style_t *style)
 {
         pd_text_style_destroy(&text->default_style);

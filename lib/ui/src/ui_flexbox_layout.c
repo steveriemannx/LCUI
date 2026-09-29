@@ -10,9 +10,10 @@
  */
 
 /**
- * 弹性布局
+ * Flexbox layout
  *
- * 布局算法参考 W3C 的文档：https://www.w3.org/TR/css-flexbox/#layout-algorithm
+ * The layout algorithm refers to the W3C document:
+ * https://www.w3.org/TR/css-flexbox/#layout-algorithm
  */
 
 // #define UI_DEBUG_ENABLED
@@ -130,7 +131,8 @@ static ui_flexbox_line_t *ui_flexbox_layout_next_line(
         return next_line;
 }
 
-/* 将 gap 值解析为像素长度，percentage 引用容器对应轴上的内容尺寸 */
+/* Resolve the gap value into a pixel length, percentage refers to the
+ * content size of the container on the corresponding axis */
 static float ui_flexbox_resolve_gap(uint8_t type, css_numeric_value_t value,
                                     css_unit_t unit, float reference)
 {
@@ -258,7 +260,7 @@ static void ui_compute_column_item_flex_basis(ui_widget_t *item)
         s->flex_basis = ui_widget_fix_height(item, s->flex_basis);
 }
 
-/* 重置项目主轴方向上的尺寸与 flex_basis，返回其外框主轴尺寸 */
+/* Reset the item's main axis size and flex_basis, return outer main size */
 static float ui_flexbox_item_reset_main_size(ui_flexbox_layout_context_t *ctx,
                                              ui_widget_t *item)
 {
@@ -276,7 +278,7 @@ static float ui_flexbox_item_reset_main_size(ui_flexbox_layout_context_t *ctx,
         return css_obox_width(cs, cs->flex_basis);
 }
 
-/* 返回项目主轴方向上基于 min_content_* 的最小外框尺寸 */
+/* Return the item's minimum outer main size based on min_content_* */
 static float ui_flexbox_item_min_main_size(ui_flexbox_layout_context_t *ctx,
                                            ui_widget_t *item)
 {

@@ -35,7 +35,7 @@
 #define rbtree_red(node) ((node)->color = 1)
 #define rbtree_black(node) ((node)->color = 0)
 
-/** 红黑树查找结点 */
+/** Search for a node in the red-black tree */
 static rbtree_node_t *rbtree_search_(rbtree_t *tree, int key,
 				     const void *keydata, rbtree_node_t **save)
 {
@@ -431,7 +431,7 @@ void rbtree_delete_by_node(rbtree_t *tree, rbtree_node_t *node)
 	rbtree_delete_rebalance(tree, temp, parent);
 }
 
-/** 删除红黑树中的结点 */
+/** Delete a node from the red-black tree */
 int rbtree_delete(rbtree_t *tree, int key, const void *keydata)
 {
 	rbtree_node_t *node;

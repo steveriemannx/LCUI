@@ -33,7 +33,7 @@ int main(void)
         pd_text_set_fixed_size(txt, 320, 240);
         pd_text_set_style(txt, &txtstyle);
         pd_text_set_align(txt, PD_TEXT_ALIGN_CENTER);
-        pd_text_write(txt, L"这是一段测试文本\nHello, World!", NULL);
+        pd_text_write(txt, L"This is some test text\nHello, World!", NULL);
         pd_text_update(txt, NULL);
 
         pd_text_render_to(txt, area, pos, &img);

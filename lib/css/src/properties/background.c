@@ -304,9 +304,9 @@ static void css_parse_background_position_1(css_style_value_t *input,
 }
 
 /**
- * FIXME: 仅支持纯数值或纯关键字的值，暂不支持关键字和数值混写
- * 关键字和数值混写依赖 calc() 特性，暂不考虑实现
- * 例如：right 50px bottom 50px，应该转换为：
+ * FIXME: only pure numeric or pure keyword values are supported, mixing
+ * keywords and numbers is not supported yet because that depends on the
+ * calc() feature, for example: right 50px bottom 50px should become:
  * background-position-x = calc(100% - 50px)
  * background-position-y = calc(100% - 50px)
  */

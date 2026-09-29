@@ -74,7 +74,7 @@ int pd_text_set_caret_pixel(pd_text_t *text, int x, int y)
                         continue;
                 }
                 pixel_pos += txtchar->bitmap->metrics.hori_advance;
-                /* 如果在当前字中心点的前面 */
+                /* If it is before the center of the current character */
                 if (x <=
                     pixel_pos - txtchar->bitmap->metrics.hori_advance / 2) {
                         ins_x = i;
@@ -85,7 +85,7 @@ int pd_text_set_caret_pixel(pd_text_t *text, int x, int y)
         return 0;
 }
 
-/** 获取指定行列的文字的像素坐标 */
+/** Get the pixel coordinates of the character at a row and column */
 int pd_text_get_char_pixel(pd_text_t *text, int line_num, int col,
                            pd_pos_t *pixel_pos)
 {
@@ -100,7 +100,7 @@ int pd_text_get_char_pixel(pd_text_t *text, int line_num, int col,
         } else if (col > text->lines[line_num]->length) {
                 return -3;
         }
-        /* 累加前几行的高度 */
+        /* Accumulate the heights of the previous lines */
         for (i = 0; i < line_num; ++i) {
                 pixel_y += text->lines[i]->height;
         }
@@ -175,7 +175,7 @@ static int pd_text_process(pd_text_t *text, const wchar_t *wstr,
         if (!tags) {
                 tags = &tmp_tags;
         }
-        /* 如果是将文本追加至文本末尾 */
+        /* If the text is appended to the end of the text */
         if (action == PD_TEXT_ACTION_APPEND) {
                 if (text->lines_length > 0) {
                         cur_line = text->lines_length - 1;
@@ -187,7 +187,7 @@ static int pd_text_process(pd_text_t *text, const wchar_t *wstr,
                         line = pd_text_append_line(text);
                 }
                 cur_col = line->length;
-        } else { /* 否则，是将文本插入至当前插入点 */
+        } else { /* Otherwise the text is inserted at the current caret */
                 cur_line = text->caret.y;
                 cur_col = text->caret.x;
                 line = pd_text_get_line(text, cur_line);
@@ -211,7 +211,7 @@ static int pd_text_process(pd_text_t *text, const wchar_t *wstr,
                     (p[1] == L'[' || p[1] == L']' || p[1] == L'\\')) {
                         ++p;
                 } else if (*p == '\r' || *p == '\n') {
-                        /* 判断是哪一种换行模式 */
+                        /* Determine which line break mode it is */
                         if (*p == '\r') {
                                 if (*(p + 1) == '\n') {
                                         eol = PD_TEXT_EOL_CR_LF;
@@ -221,13 +221,13 @@ static int pd_text_process(pd_text_t *text, const wchar_t *wstr,
                         } else {
                                 eol = PD_TEXT_EOL_LF;
                         }
-                        /* 如果没有记录过文本行的矩形区域 */
+                        /* If the text line rect has not been recorded */
                         if (!rect_has_added) {
                                 pd_text_mark_dirty(text, ins_y, -1);
                                 rect_has_added = true;
                                 start_line = ins_y;
                         }
-                        /* 将当前行中的插入点为截点，进行断行 */
+                        /* Break the line at the caret of the current line */
                         pd_text_break_line(text, ins_y, ins_x, eol);
                         text->width = y_max(text->width, line->width);
                         need_typeset = true;
@@ -244,20 +244,20 @@ static int pd_text_process(pd_text_t *text, const wchar_t *wstr,
                 ++text->length;
                 ++ins_x;
         }
-        /* 更新当前行的尺寸 */
+        /* Update the size of the current line */
         pd_text_update_line_size(text, line);
         text->width = y_max(text->width, line->width);
         if (action == PD_TEXT_ACTION_INSERT) {
                 text->caret.x = ins_x;
                 text->caret.y = ins_y;
         }
-        /* 若启用了自动换行模式，则标记需要重新对文本进行排版 */
+        /* Mark the text for retypesetting when autowrap is enabled */
         if (text->autowrap_enabled || need_typeset) {
                 pd_text_request_typeset(text, cur_line);
         } else {
                 pd_text_mark_line_dirty(text, cur_line, 0, -1);
         }
-        /* 如果已经记录过文本行矩形区域 */
+        /* If the text line rect has already been recorded */
         if (rect_has_added) {
                 pd_text_mark_dirty(text, start_line, -1);
                 rect_has_added = true;
@@ -292,7 +292,7 @@ size_t pd_text_read(pd_text_t *text, size_t start_pos, size_t max_len,
                 wstr_buff[0] = 0;
                 return 0;
         }
-        /* 先根据一维坐标计算行列坐标 */
+        /* First compute the row and column from the 1D coordinate */
         for (i = 0, line_num = 0, col = 0; line_num < text->lines_length;
              ++line_num) {
                 if (i >= start_pos) {
@@ -306,7 +306,7 @@ size_t pd_text_read(pd_text_t *text, size_t start_pos, size_t max_len,
                 for (; col < line->length && i < max_len; ++col, ++i) {
                         wstr_buff[i] = line->string[col]->code;
                 }
-                /* 进入下一行前，按行尾符还原对应的换行字符 */
+                /* Restore the line break char from the eol before next line */
                 if (i >= max_len) {
                         break;
                 }
@@ -328,7 +328,7 @@ size_t pd_text_read(pd_text_t *text, size_t start_pos, size_t max_len,
                 default:
                         break;
                 }
-                /* 切换到下一行时必须重置列号 */
+                /* The column must be reset when moving to the next line */
                 col = 0;
         }
         wstr_buff[i] = 0;
@@ -366,7 +366,7 @@ wchar_t *pd_text_to_wcs(pd_text_t *text)
         return buf;
 }
 
-/** 删除指定行列的文字及其右边的文本 */
+/** Delete the character at a row and column and the text to its right */
 static int pd_text_delete_ex(pd_text_t *text, int char_y, int char_x,
                              int n_char)
 {
@@ -392,7 +392,7 @@ static int pd_text_delete_ex(pd_text_t *text, int char_y, int char_x,
         i = n_char;
         end_x = char_x;
         end_y = char_y;
-        /* 计算结束点的位置 */
+        /* Compute the position of the end point */
         for (; end_y < text->lines_length && n_char > 0; ++end_y) {
                 line = text->lines[end_y];
                 if (end_x + n_char <= line->length) {
@@ -426,46 +426,46 @@ static int pd_text_delete_ex(pd_text_t *text, int char_y, int char_x,
         if (end_x == char_x && end_y == char_y) {
                 return 0;
         }
-        /* 获取上一行文本（首行时无上一行） */
+        /* Get the previous line (there is none for the first line) */
         prev_line = char_y > 0 ? text->lines[char_y - 1] : NULL;
-        // 计算起始行与结束行拼接后的长度
-        // 起始行：0 1 2 3 4 5，起点位置：2
-        // 结束行：0 1 2 3 4 5，终点位置：4
-        // 拼接后的长度：2 + 6 - 4 = 4
+        // Length after joining the start line and the end line
+        // Start line: 0 1 2 3 4 5, start position: 2
+        // End line: 0 1 2 3 4 5, end position: 4
+        // Joined length: 2 + 6 - 4 = 4
         len = char_x + end_line->length - end_x;
         if (len < 0) {
                 return -3;
         }
-        /* 如果是同一行 */
+        /* If they are on the same line */
         if (line == end_line) {
                 if (end_x > end_line->length) {
                         return -4;
                 }
                 pd_text_mark_line_dirty(text, char_y, char_x, -1);
                 pd_text_request_typeset(text, char_y);
-                /* 释放被删除范围内的字符 */
+                /* Free the characters in the deleted range */
                 pd_text_line_erase(line, char_x, end_x);
-                /* 将结束点之后的内容向前搬移 */
+                /* Move the content after the end point forward */
                 pd_text_line_move(line, char_x, line, end_x, line->length);
-                /* 如果当前行为空，也不是第一行，并且上一行没有结束符，
-                 * 则直接移除当前行，不能再访问 line */
+                /* If the line is empty and not the first one, and the previous
+                 * line has an eol, remove this line; do not access line */
                 if (len <= 0 && char_y > 0 && prev_line &&
                     prev_line->eol != PD_TEXT_EOL_NONE) {
                         pd_text_delete_line(text, char_y);
                         return 0;
                 }
-                /* 调整起始行的容量 */
+                /* Adjust the capacity of the start line */
                 pd_text_line_set_length(line, len);
-                /* 更新文本行的尺寸 */
+                /* Update the size of the text line */
                 pd_text_update_line_size(text, line);
                 return 0;
         }
-        /* 释放起始行中被删除的字符（区间为 [char_x, line->length)） */
+        /* Free the deleted characters of the start line, [char_x, length) */
         pd_text_line_erase(line, char_x, line->length);
-        /* 释放结束行中被删除的字符（区间为 [0, end_x)） */
+        /* Free the deleted characters of the end line, [0, end_x) */
         pd_text_line_erase(end_line, 0, end_x);
-        /* 如果结束点在行尾，并且该行不是最后一行，
-         * 则将结束点推进到下一行的行首 */
+        /* If the end point is at the end of a line that is not the last one,
+         * advance the end point to the start of the next line */
         if (end_x == end_line->length && end_y < text->lines_length - 1) {
                 ++end_y;
                 end_line = pd_text_get_line(text, end_y);
@@ -473,22 +473,22 @@ static int pd_text_delete_ex(pd_text_t *text, int char_y, int char_x,
                 len = char_x + end_line->length;
         }
         pd_text_line_set_length(line, len);
-        /* 标记当前行后面的所有行的矩形需区域需要刷新 */
+        /* Mark the rects of all lines after the current one for refresh */
         pd_text_mark_dirty(text, char_y + 1, -1);
-        /* 移除起始行与结束行之间的文本行 */
+        /* Remove the text lines between the start line and the end line */
         for (i = char_y + 1, j = i; j < end_y; ++j) {
                 pd_text_mark_line_dirty(text, i, 0, -1);
                 pd_text_delete_line(text, i);
         }
         end_y = char_y + 1;
-        /* 将结束行的内容拼接至起始行（所有权随之转移） */
+        /* Join the end line content to the start line (ownership moves) */
         pd_text_line_move(line, char_x, end_line, end_x, end_line->length);
         pd_text_update_line_size(text, line);
         pd_text_mark_line_dirty(text, end_y, 0, -1);
-        /* 移除结束行 */
+        /* Remove the end line */
         pd_text_delete_line(text, end_y);
-        /* 如果起始行无内容，并且上一行没有结束符（换行符），则
-         * 说明需要删除起始行 */
+        /* If the start line has no content and the previous line has an eol,
+         * the start line needs to be removed */
         if (len <= 0 && char_y > 0 && prev_line &&
             prev_line->eol != PD_TEXT_EOL_NONE) {
                 pd_text_mark_line_dirty(text, char_y, 0, -1);
@@ -498,26 +498,26 @@ static int pd_text_delete_ex(pd_text_t *text, int char_y, int char_x,
         return 0;
 }
 
-/** 删除文本光标的当前坐标右边的文本 */
+/** Delete the text to the right of the caret position */
 int pd_text_delete(pd_text_t *text, int n_char)
 {
         return pd_text_delete_ex(text, text->caret.y, text->caret.x, n_char);
 }
 
-/** 退格删除文本，即删除文本光标的当前坐标左边的文本 */
+/** Backspace delete, removes the text to the left of the caret position */
 int pd_text_backspace(pd_text_t *text, int n_char)
 {
         int n_del;
         int char_x, char_y;
         pd_text_line_t *line;
 
-        /* 先获取当前字的位置 */
+        /* First get the position of the current character */
         char_x = text->caret.x;
         char_y = text->caret.y;
-        /* 再计算删除 n_char 个字后的位置 */
+        /* Then compute the position after deleting n_char characters */
         for (n_del = n_char; char_y >= 0; --char_y) {
                 line = text->lines[char_y];
-                /* 如果不是当前行，则重定位至行尾 */
+                /* Move to the end of the line if it is not the current one */
                 if (char_y < text->caret.y) {
                         char_x = line->length;
                         if (line->eol == PD_TEXT_EOL_NONE) {
@@ -534,24 +534,24 @@ int pd_text_backspace(pd_text_t *text, int n_char)
         if (char_y < 0 || n_del == n_char) {
                 return -1;
         }
-        /* 若能够被删除的字不够 n_char 个，则调整需删除的字数 */
+        /* Adjust the count if fewer than n_char characters can be deleted */
         if (n_del > 0) {
                 n_char -= n_del;
         }
-        /* 开始删除文本 */
+        /* Start deleting the text */
         pd_text_delete_ex(text, char_y, char_x, n_char);
-        /* 若最后一行被完全移除，则移动输入点至上一行的行尾处 */
+        /* If the last line was removed, move the caret to the line before */
         if (char_x == 0 && text->lines_length > 0 &&
             char_y >= text->lines_length) {
                 char_y = text->lines_length - 1;
                 char_x = text->lines[char_y]->length;
         }
-        /* 更新文本光标的位置 */
+        /* Update the caret position */
         pd_text_set_caret(text, char_y, char_x);
         return 0;
 }
 
-/** 设置是否使用样式标签 */
+/** Enable or disable style tags */
 void pd_text_set_style_tag(pd_text_t *text, bool enabled)
 {
         text->style_tag_enabled = enabled;

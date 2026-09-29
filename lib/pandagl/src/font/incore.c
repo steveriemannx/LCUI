@@ -56,7 +56,7 @@ static unsigned pd_incore_font_get_glyph_index(pd_font_face_t *face,
                                                unsigned ch)
 {
         (void)face;
-        /* 内置位图字体没有 cmap，字符码即字形索引 */
+        /* In-core bitmap fonts have no cmap, the code is the glyph index */
         return ch;
 }
 

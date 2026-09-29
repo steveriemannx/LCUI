@@ -294,7 +294,7 @@ LIBCSS_INLINE void css_valdef_parser_reset_buffer(css_valdef_parser_t *parser)
         parser->pos = 0;
 }
 
-// 在遇到符号时提交当前已解析的值定义
+// Commit the currently parsed value definition when a sign is met
 static int css_valdef_parser_commit(css_valdef_parser_t *parser,
                                     css_valdef_sign_t sign)
 {
@@ -302,8 +302,8 @@ static int css_valdef_parser_commit(css_valdef_parser_t *parser,
         css_valdef_t *deleted_valdef = NULL;
         css_valdef_t *child;
 
-        // TODO: 处理 && 和 || 混写情况
-        // TODO: 处理非数组值的情况
+        // TODO: handle mixed usage of && and ||
+        // TODO: handle the non-array value case
         if (!parser->valdef) {
                 return 0;
         }
@@ -1056,8 +1056,10 @@ static int css_value_matcher_submatch(css_value_matcher_t *matcher,
         DEBUG_MSG("submatch(matcher<0x%p>): 0x%p, cur: %s\n", matcher,
                   submatcher, submatcher->cur);
         if (css_value_matcher_match(submatcher, valdef) == 0) {
-                // 可选值定义允许没有匹配的值，我们需要重置 next
-                // 指针到当前值的开头，以让匹 配器继续使用当前值匹配下个值定义
+                // An optional value definition allows no matched value, so we
+                // need to reset the next pointer back to the start of the
+                // current value, letting the matcher go on matching the next
+                // value definition with the current value
                 if (css_array_value_get_length(submatcher->value) == 0) {
                         matcher->next = matcher->cur;
                         css_value_matcher_destroy(submatcher);

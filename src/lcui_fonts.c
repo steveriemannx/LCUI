@@ -100,7 +100,7 @@ static void lcui_fc_fonts_init(void)
                 if (has_default) {
                         continue;
                 }
-                // TODO: 使用系统已设置的默认字体
+                // TODO: Use the default font configured by the system
                 // fontconfig matches the name against whatever the
                 // system actually has, so the family it finds is not
                 // necessarily the one asked for.  Set the default with the
@@ -148,7 +148,7 @@ static void lcui_linux_fonts_init(void)
         for (i = 0; i < sizeof(fonts) / sizeof(char *); ++i) {
                 pd_font_load_file(fonts[i]);
         }
-        // TODO: 使用系统已设置的默认字体
+        // TODO: Use the default font configured by the system
         if (!lcui_fonts_set_default("Noto Sans CJK SC")) {
                 lcui_fonts_set_default("Ubuntu");
         }

@@ -517,7 +517,7 @@ typedef enum {
 
 typedef int32_t css_unit_ident_t;
 
-// TODO: 优化内存占用
+// TODO: optimize memory usage
 
 /** https://developer.mozilla.org/en-US/docs/Web/API/CSSUnitValue */
 typedef struct css_unit_value {
@@ -622,14 +622,14 @@ typedef list_t css_style_decl_t;
 typedef css_style_decl_t css_style_decl_t;
 typedef unsigned css_selector_hash_t;
 
-/** 样式规则记录 */
+/** Style rule record */
 typedef struct css_style_rule {
-        int rank;               /**< 权值，决定优先级 */
-        int batch_num;          /**< 批次号 */
-        char *space;            /**< 所属的空间 */
-        char *selector;         /**< 选择器 */
-        css_style_decl_t *list; /**< 样式表 */
-        list_node_t node;       /**< 在链表中的结点 */
+        int rank;               /**< Weight, determines priority */
+        int batch_num;          /**< Batch number */
+        char *space;            /**< Space it belongs to */
+        char *selector;         /**< Selector */
+        css_style_decl_t *list; /**< Style declarations */
+        list_node_t node;       /**< Node in the linked list */
 } css_style_rule_t;
 
 typedef struct css_prop {
@@ -643,16 +643,16 @@ typedef struct css_selector_node {
         char *type;
         char **classes;
         char **status;
-        char *fullname; /**< 全名，由 id、type、classes、status 组合而成 */
+        char *fullname; /**< Full name, composed of id, type, classes, status */
         int rank;
 } css_selector_node_t;
 
 typedef struct css_selector {
-        int rank;                    /**< 权值，决定优先级 */
-        int batch_num;               /**< 批次号 */
-        int length;                  /**< 选择器结点长度 */
-        css_selector_hash_t hash;    /**< 哈希值 */
-        css_selector_node_t **nodes; /**< 选择器结点列表 */
+        int rank;                    /**< Weight, determines priority */
+        int batch_num;               /**< Batch number */
+        int length;                  /**< Number of selector nodes */
+        css_selector_hash_t hash;    /**< Hash value */
+        css_selector_node_t **nodes; /**< Selector node list */
 } css_selector_t;
 
 typedef struct css_font_face {
@@ -671,8 +671,8 @@ typedef struct css_metrics {
 
 typedef struct css_computed_style {
         /**
-         * 属性值类型的比特数据
-         * 以比特位为单位分配的存储空间，用于节省属性值的内存占用
+         * Bit data of the property value types
+         * Storage allocated in bits to reduce memory usage of property values
          */
         struct css_type_bits {
                 uint8_t display : 5;
@@ -743,7 +743,7 @@ typedef struct css_computed_style {
         } type_bits;
 
         /**
-         * 属性值单位的比特数据
+         * Bit data of the property value units
          */
         struct css_unit_bits {
                 css_unit_t left : 4;
@@ -844,7 +844,7 @@ typedef struct css_computed_style {
         css_numeric_value_t background_position_x;
         css_numeric_value_t background_position_y;
 
-        // 针对 LCUI 的需求只支持单个阴影效果，暂不考虑支持设置多个阴影效果
+        // Only a single shadow is supported for LCUI's requirements
         css_numeric_value_t box_shadow_x;
         css_numeric_value_t box_shadow_y;
         css_numeric_value_t box_shadow_blur;
@@ -859,8 +859,8 @@ typedef struct css_propdef css_propdef_t;
 
 struct css_propdef {
         /**
-         * 属性标识号
-         * 值为 -1 时，则表明它是简写属性
+         * Property identifier
+         * A value of -1 means it is a shorthand property
          */
         int key;
         char *name;

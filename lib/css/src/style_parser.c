@@ -75,7 +75,7 @@ void css_style_parser_commit(css_style_parser_t *parser)
 {
         list_node_t *node;
 
-        /* 将记录的样式表添加至匹配到的选择器中 */
+        /* Add the recorded style declarations to the matched selectors */
         for (list_each(node, &parser->selectors)) {
                 css_add_style_decl(node->data, parser->style, parser->space);
         }

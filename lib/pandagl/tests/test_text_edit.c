@@ -15,9 +15,9 @@
 #include <ctest.h>
 
 /*
- * 这些用例覆盖 pd_text_delete_ex 的关键分支，包括同行删除、跨行合并、
- * 以及边界场景。由于 pd_text_read 在多行场景下存在已知问题（不在本次
- * 修复范围），这里通过断言每行长度来验证缓冲区状态。
+ * These cases cover the key branches of pd_text_delete_ex: deletes in
+ * one line, merges across lines and edge cases. pd_text_read has a known
+ * multiline issue (out of scope), so each line length is asserted instead.
  */
 
 static void should_backspace_last_char_on_last_line(void)
@@ -26,8 +26,8 @@ static void should_backspace_last_char_on_last_line(void)
 
         pd_text_set_multiline(text, true);
         pd_text_write(text, L"123\n123\n123\n", NULL);
-        /* 光标置于末尾的空行，按退格删除前一行的换行符，
-         * 此时空行被丢弃 */
+        /* The caret sits on the trailing empty line, backspace deletes the
+         * line break of the previous line, so the empty line is dropped */
         pd_text_set_caret(text, 3, 0);
         ctest_equal_int("should not crash on backspace last char",
                         pd_text_backspace(text, 1), 0);
@@ -98,8 +98,8 @@ static void should_join_next_line_when_delete_at_line_end(void)
 
         pd_text_set_multiline(text, true);
         pd_text_write(text, L"abc\ndef\nghi", NULL);
-        /* 在第二行最后一个字符处使用 delete，触发跨行拼接，
-         * 之前 +1 偏移 bug 会导致 'd' 字符丢失 */
+        /* Using delete at the last character of the second line joins lines,
+         * the old +1 offset bug used to drop the 'd' character */
         pd_text_set_caret(text, 1, 3);
         ctest_equal_int("should not crash when delete at line end",
                         pd_text_delete(text, 1), 0);
@@ -118,7 +118,7 @@ static void should_preserve_chars_when_joining_lines(void)
 
         pd_text_set_multiline(text, true);
         pd_text_write(text, L"abc\ndef\n", NULL);
-        /* 在第一行末尾处用 delete 删除换行符 */
+        /* Delete the line break at the end of the first line */
         pd_text_set_caret(text, 0, 3);
         pd_text_delete(text, 1);
         ctest_equal_int("should reduce to two lines",
@@ -137,11 +137,11 @@ static void should_handle_multi_line_backspace_sequence(void)
         pd_text_set_multiline(text, true);
         pd_text_write(text, L"123\n123\n123\n", NULL);
         pd_text_set_caret(text, 3, 0);
-        /* 连续 backspace，模拟用户按住退格。每次删一格：
-         * 1) 删第 4 行（空行） -> 3 行
-         * 2) 删第 3 行的 '3' -> 2.x（剩 '12'）
-         * 3) 删 '2'
-         * 4) 删 '1' -> 第 3 行空且无 eol，进入下次 backspace 跨行 */
+        /* Repeated backspace, simulating a held down key. One char each time:
+         * 1) delete line 4 (empty) -> 3 lines
+         * 2) delete '3' of line 3 -> 2.x ('12' left)
+         * 3) delete '2'
+         * 4) delete '1' -> line 3 empty, no eol, next backspace merges */
         pd_text_backspace(text, 1);
         pd_text_backspace(text, 1);
         pd_text_backspace(text, 1);
@@ -199,7 +199,7 @@ static void should_dump_respect_max_len(void)
 
         pd_text_set_multiline(text, true);
         pd_text_write(text, L"abc\ndef\nghi", NULL);
-        /* 只允许写 4 个 wchar，第 5 位是终止符 */
+        /* Only 4 wchars may be written, the 5th is the terminator */
         ctest_equal_uint("should stop at max_len",
                          (unsigned)pd_text_read(text, 0, 4, buf), 4u);
         ctest_equal_wcs("should truncate without crossing buffer", buf,

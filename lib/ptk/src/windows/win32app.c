@@ -824,7 +824,7 @@ int ptk_app_destroy(void)
 {
         MSG msg;
 
-        // 销毁未关闭的窗口
+        // Destroy the windows that were never closed
         if (win32_app.windows.length > 0) {
                 list_destroy_without_node(&win32_app.windows,
                                           ptk_window_destroy);

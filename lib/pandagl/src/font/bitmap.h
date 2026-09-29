@@ -9,8 +9,8 @@
  * in the LICENSE.TXT file in the root directory of this source tree.
  */
 
-/** 初始化字体位图 */
+/** Initialize a font bitmap */
 void pd_glyph_bitmap_init(pd_glyph_bitmap_t *bitmap);
 
-/** 释放字体位图占用的资源 */
+/** Release the resources used by a font bitmap */
 void pd_glyph_bitmap_destroy(pd_glyph_bitmap_t *bitmap);

@@ -308,23 +308,27 @@ typedef struct ui_wheel_event {
 
 typedef struct ui_event ui_event_t;
 /**
- * 部件事件处理函数
- * @param[in] w   事件当前到达的部件（冒泡链上的当前节点，非原始发射源）
- * @param[in] e   事件对象，e->data 为当前监听器注册时传入的 listener_data
- *                （即 ui_widget_on / ui_widget_add_event_listener 的第四参数）
- * @param[in] emit_arg ui_widget_emit_event 的第三参数，大多数发射点传 NULL；
- *                     仅在少数显式传入非 NULL
- * 值时才有效，常规监听器不应依赖此参数。 它不是 ui_widget_on() 的第四参数。
+ * Widget event handler function
+ * @param[in] w   the widget the event currently reaches (the current node
+ *                on the bubbling chain, not the original emit source)
+ * @param[in] e   event object; e->data is the listener_data passed when
+ *                the listener was registered (the fourth argument of
+ *                ui_widget_on / ui_widget_add_event_listener)
+ * @param[in] emit_arg the third argument of ui_widget_emit_event; most
+ *                     emit points pass NULL and it is only valid when a
+ *                     few pass a non-NULL value. Regular listeners should
+ *                     not rely on it; it is not the fourth argument of
+ *                     ui_widget_on().
  */
 typedef void (*ui_event_handler_t)(ui_widget_t *w, ui_event_t *e,
                                    void *emit_arg);
 typedef void (*ui_event_arg_destructor_t)(void *);
 
 struct ui_event {
-        uint32_t type;       /**< 事件类型标识号 */
-        void *data;          /**< 附加数据 */
-        ui_widget_t *target; /**< 触发事件的部件 */
-        bool cancel_bubble;  /**< 是否取消事件冒泡 */
+        uint32_t type;       /**< Event type id */
+        void *data;          /**< Attached data */
+        ui_widget_t *target; /**< Widget that triggered the event */
+        bool cancel_bubble;  /**< Whether to cancel event bubbling */
         union {
                 ui_mouse_event_t mouse;
                 ui_wheel_event_t wheel;

@@ -388,7 +388,7 @@ static void ptk_fb_window_sync_rect32(pd_canvas_t *canvas, int x, int y)
         pd_canvas_replace(&fbapp.canvas, canvas, x, y);
 }
 
-/** FIXME: 屏幕上并未显示图形 */
+/** FIXME: nothing shows up on the screen */
 static void ptk_fb_window_sync_rect(ptk_window_t *wnd, pd_rect_t *rect)
 {
         int x, y;

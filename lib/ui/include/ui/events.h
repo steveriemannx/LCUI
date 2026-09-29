@@ -17,30 +17,30 @@
 
 LIBUI_BEGIN_DECLS
 
-/** 设置阻止部件及其子级部件的事件 */
+/** Set the event blocking of a widget and its children */
 LIBUI_INLINE void ui_widget_block_event(ui_widget_t *w, bool block)
 {
         w->event_blocked = block;
 }
 
-/** 触发事件，让事件处理器在主循环中调用 */
+/** Trigger an event, letting handlers be called in the main loop */
 LIBUI_PUBLIC int ui_widget_post_event(ui_widget_t *w, const ui_event_t *e,
                                       void *arg,
                                       ui_event_arg_destructor_t destroy_arg);
 
-/** 触发事件，直接调用事件处理器 */
+/** Trigger an event, calling the handlers directly */
 LIBUI_PUBLIC int ui_widget_emit_event(ui_widget_t *w, ui_event_t e, void *arg);
 
-/** 自动分配一个可用的事件标识号 */
+/** Automatically allocate an available event id */
 LIBUI_PUBLIC int ui_alloc_event_id(void);
 
-/** 设置与事件标识号对应的名称 */
+/** Set the name corresponding to an event id */
 LIBUI_PUBLIC int ui_set_event_id(int event_id, const char *event_name);
 
-/** 获取与事件标识号对应的名称 */
+/** Get the name corresponding to an event id */
 LIBUI_PUBLIC const char *ui_get_event_name(int event_id);
 
-/** 获取与事件名称对应的标识号 */
+/** Get the id corresponding to an event name */
 LIBUI_PUBLIC int ui_get_event_id(const char *event_name);
 
 LIBUI_PUBLIC void ui_event_init(ui_event_t *e, const char *name);
@@ -48,36 +48,36 @@ LIBUI_PUBLIC void ui_event_init(ui_event_t *e, const char *name);
 LIBUI_PUBLIC void ui_event_destroy(ui_event_t *e);
 
 /**
- * 添加部件事件绑定
- * @param[in] widget 目标部件
- * @param[in] event_id 事件标识号
- * @param[in] handler 事件处理函数
- * @param[in] listener_data 事件监听器的上下文数据，处理函数通过 e->data 访问
- * @param[in] destroy_arg 监听器上下文数据的销毁函数
- * @return 成功则返回 0，失败返回负数
+ * Add a widget event binding
+ * @param[in] widget target widget
+ * @param[in] event_id event id
+ * @param[in] handler event handler function
+ * @param[in] listener_data listener context data, available as e->data
+ * @param[in] destroy_arg destructor for the listener context data
+ * @return 0 on success, a negative value on failure
  */
 LIBUI_PUBLIC ui_event_listener_t *ui_widget_add_event_listener(
     ui_widget_t *widget, int event_id, ui_event_handler_t handler,
     void *listener_data, void (*destroy_arg)(void *));
 
 /**
- * 解除部件事件绑定
- * @param[in] widget 目标部件
- * @param[in] event_name 事件名称
- * @param[in] handler 与事件绑定的函数
- * @return 成功则返回 0，失败返回负数
+ * Remove a widget event binding
+ * @param[in] widget target widget
+ * @param[in] event_name event name
+ * @param[in] handler function bound to the event
+ * @return 0 on success, a negative value on failure
  */
 LIBUI_PUBLIC int ui_widget_remove_event_listener(ui_widget_t *w, int event_id,
                                                  ui_event_handler_t handler,
                                                  void *listener_data);
 
 /**
- * 添加部件事件绑定
- * @param[in] widget 目标部件
- * @param[in] event_name 事件名称
- * @param[in] handler 事件处理函数
- * @param[in] listener_data 事件监听器的上下文数据，处理函数通过 e->data 访问
- * @return 返回已移除的事件监听器数量
+ * Add a widget event binding
+ * @param[in] widget target widget
+ * @param[in] event_name event name
+ * @param[in] handler event handler function
+ * @param[in] listener_data listener context data, available as e->data
+ * @return the number of removed event listeners
  */
 LIBUI_PUBLIC ui_event_listener_t *ui_widget_on(ui_widget_t *widget,
                                                const char *event_name,
@@ -85,11 +85,11 @@ LIBUI_PUBLIC ui_event_listener_t *ui_widget_on(ui_widget_t *widget,
                                                void *listener_data);
 
 /**
- * 解除部件事件绑定
- * @param[in] widget 目标部件
- * @param[in] event_name 事件名称
- * @param[in] handler 与事件绑定的函数
- * @return 成功则返回 0，失败返回负数
+ * Remove a widget event binding
+ * @param[in] widget target widget
+ * @param[in] event_name event name
+ * @param[in] handler function bound to the event
+ * @return 0 on success, a negative value on failure
  */
 LIBUI_PUBLIC int ui_widget_off(ui_widget_t *widget, const char *event_name,
                                ui_event_handler_t handler, void *listener_data);
@@ -113,37 +113,38 @@ LIBUI_PUBLIC ui_event_listener_t *ui_on_event(const char *event_name,
 LIBUI_PUBLIC int ui_off_event(const char *event_name,
                               ui_event_handler_t handler, void *listener_data);
 
-/** 清除事件对象，通常在部件销毁时调用该函数，以避免部件销毁后还有事件发送给它
+/** Clear the event object, usually called when the widget is destroyed
+ * to avoid events still being sent to it after it is destroyed
  */
 LIBUI_PUBLIC void ui_clear_event_target(ui_widget_t *widget);
 
 /** get current focused widget */
 LIBUI_PUBLIC ui_widget_t *ui_get_focus(void);
 
-/** 将一个部件设置为焦点 */
+/** Set a widget as the focus */
 LIBUI_PUBLIC int ui_set_focus(ui_widget_t *widget);
 
-/** 停止部件的事件传播 */
+/** Stop the event propagation of a widget */
 LIBUI_PUBLIC int ui_widget_stop_event_propagation(ui_widget_t *widget);
 
-/** 为部件设置鼠标捕获，设置后将捕获全局范围内的鼠标事件 */
+/** Set mouse capture for a widget to capture global mouse events */
 LIBUI_PUBLIC void ui_widget_set_mouse_capture(ui_widget_t *w);
 
-/** 为部件解除鼠标捕获 */
+/** Release the mouse capture of a widget */
 LIBUI_PUBLIC void ui_widget_release_mouse_capture(ui_widget_t *w);
 
 /**
- * 为部件设置触点捕获，设置后将捕获全局范围内的触点事件
- * @param[in] w 部件
- * @param[in] point_id 触点ID，当值为 -1 时则捕获全部触点
- * @returns 设置成功返回 0，如果其它部件已经捕获该触点则返回 -1
+ * Set touch point capture for a widget to capture global touch events
+ * @param[in] w widget
+ * @param[in] point_id touch point id, -1 captures all touch points
+ * @returns 0 on success, or -1 if the touch point is already captured
  */
 LIBUI_PUBLIC int ui_widget_set_touch_capture(ui_widget_t *w, int point_id);
 
 /**
- * 为部件解除触点捕获
- * @param[in] w 部件
- * @param[in] point_id 触点ID，当值为 -1 时则解除全部触点的捕获
+ * Release the touch point capture of a widget
+ * @param[in] w widget
+ * @param[in] point_id touch point id, -1 releases all touch points
  */
 LIBUI_PUBLIC int ui_widget_release_touch_capture(ui_widget_t *w, int point_id);
 

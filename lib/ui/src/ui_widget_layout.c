@@ -23,7 +23,7 @@
 #include "ui_widget_layout.h"
 
 /**
- * 重置布局相关属性，并重新计算样式
+ * Reset the layout related properties and recompute the style
  */
 void ui_widget_reset_layout(ui_widget_t *w)
 {

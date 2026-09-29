@@ -80,7 +80,7 @@ typedef struct ui_renderer {
         bool can_render_content;
 } ui_renderer_t;
 
-/** 判断部件是否有可绘制内容 */
+/** Determine whether the widget has any renderable content */
 static bool ui_widget_is_paintable(ui_widget_t *w)
 {
         const css_computed_style_t *s = &w->computed_style;
@@ -230,7 +230,7 @@ size_t ui_widget_get_dirty_rects(ui_widget_t *w, list_t *rects)
         return rects->length;
 }
 
-/** 当前部件的绘制函数 */
+/** Paint function for the current widget */
 static void ui_widget_on_paint(ui_widget_t *w, pd_context_t *paint,
                                ui_widget_actual_style_t *style)
 {
@@ -463,7 +463,7 @@ static size_t ui_renderer_render(ui_renderer_t *renderer)
 #endif
         DEBUG_MSG("[%d] %s: start render\n", that->target->index,
                   that->target->type);
-        /* 如果部件有需要绘制的内容 */
+        /* If the widget has content that needs to be painted */
         if (that->can_render_self) {
                 count += 1;
                 self_paint = *that->paint;
@@ -478,7 +478,7 @@ static size_t ui_renderer_render(ui_renderer_t *renderer)
                         self_paint.rect.width, self_paint.rect.height);
                 pd_write_png_file(filename, &self_paint.canvas);
 #endif
-                /* 若不需要缓存自身位图则直接绘制到画布上 */
+                /* If the self bitmap is not cached, paint onto the canvas */
                 if (!that->has_self_graph) {
                         pd_canvas_mix(&that->paint->canvas, &that->self_graph,
                                       0, 0, that->paint->with_alpha);
@@ -518,8 +518,9 @@ static size_t ui_renderer_render(ui_renderer_t *renderer)
                           that->target->index, that->target->type, count);
                 return count;
         }
-        /* 若需要绘制的是当前部件图层，则先混合部件自身位图和内容位图，得出当
-         * 前部件的图层，然后将该图层混合到输出的位图中
+        /* If what needs to be painted is the current widget layer, first mix
+         * the widget's own bitmap with the content bitmap to get the current
+         * widget layer, then mix that layer into the output bitmap
          */
         if (that->can_render_self) {
                 pd_canvas_copy(&that->layer_graph, &that->self_graph);

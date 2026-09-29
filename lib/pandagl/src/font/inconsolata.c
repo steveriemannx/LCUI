@@ -9,7 +9,7 @@
  * in the LICENSE.TXT file in the root directory of this source tree.
  */
 
-// TODO: 删除此文件，可考虑由 lcui-cli 提供字体位图到 C 源码的生成功能
+// TODO: remove this file, lcui-cli could generate font bitmaps into C source
 
 #include <stdlib.h>
 #include <string.h>
@@ -26,7 +26,7 @@ enum font_index {
         SIZE_TOTAL
 };
 
-/* inconsolata 字体数据索引 */
+/* inconsolata font data index */
 static const pd_glyph_bitmap_t
     pd_inconsolata_font_bitmap_info[SIZE_TOTAL][95] = {
             { { 16, 0, 0, 0, 0, (uint8_t *)0x00000000, { 6, 12 } },
@@ -5004,7 +5004,7 @@ int pd_render_inconsolata_font_bitmap(pd_glyph_bitmap_t *bmp, unsigned ch,
         if (size < 12) {
                 return -1;
         }
-        /* 不在范围内的字符都用框框表示 */
+        /* Characters out of range are drawn as boxes */
         if (ch < ' ' || ch > '~' || size > 18) {
                 bmp->metrics.hori_advance = (int)(size / 2.0 + 0.5);
                 bmp->metrics.vert_advance = size;
@@ -5033,7 +5033,7 @@ int pd_render_inconsolata_font_bitmap(pd_glyph_bitmap_t *bmp, unsigned ch,
                 }
                 return -2;
         }
-        /* 空格就直接填充空白 */
+        /* Fill a blank for the space character */
         if (ch == ' ') {
                 bmp->metrics.hori_advance = (int)(size / 2.0 + 0.5);
                 bmp->metrics.vert_advance = size;

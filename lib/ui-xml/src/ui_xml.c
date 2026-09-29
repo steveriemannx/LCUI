@@ -41,12 +41,12 @@
 
 enum ui_xml_parser_id { ID_ROOT, ID_UI, ID_WIDGET, ID_RESOURCE };
 
-/** 解析器行为，用于决定解析器在解析完元素后的行为 */
+/** Parser behavior, decides what the parser does after an element */
 enum ParserBehavior {
-        PB_ERROR,   /**< 给出错误提示 */
-        PB_WARNING, /**< 给出警告提示 */
-        PB_NEXT,    /**< 处理下个元素 */
-        PB_ENTER    /**< 进入子元素列表 */
+        PB_ERROR,   /**< Show an error */
+        PB_WARNING, /**< Show a warning */
+        PB_NEXT,    /**< Process the next element */
+        PB_ENTER    /**< Enter the child element list */
 };
 
 typedef struct xml_parser xml_parser_t;
@@ -79,7 +79,7 @@ static void xmlPrintErrorMessage(const xmlError *err)
                      err->message);
 }
 
-/** 解析 <resource> 元素，根据相关参数载入资源 */
+/** Parse the <resource> element, load resources by the given params */
 static int ui_builder_parse_resource_node(xml_parser_t *parser, xmlNodePtr node)
 {
         xmlAttrPtr prop;
@@ -151,7 +151,7 @@ exit:
         return code;
 }
 
-/** 解析 <ui> 元素，主要作用是创建一个容纳全部部件的根级部件 */
+/** Parse the <ui> element, creating the root widget for all widgets */
 static int ui_builder_parse_ui_node(xml_parser_t *parser, xmlNodePtr node)
 {
         if (node->type != XML_ELEMENT_NODE) {
@@ -165,7 +165,7 @@ static int ui_builder_parse_ui_node(xml_parser_t *parser, xmlNodePtr node)
         return PB_ENTER;
 }
 
-/** 解析 <widget> 元素数据 */
+/** Parse the <widget> element data */
 static int ui_builder_parse_widget_node(xml_parser_t *parser, xmlNodePtr node)
 {
         xmlAttrPtr prop;
@@ -250,7 +250,7 @@ static xml_node_parser_t *ui_builder_get_node_parser(const char *name)
         return NULL;
 }
 
-/** 解析 xml 文档结点 */
+/** Parse an xml document node */
 static void ui_builder_parse_node(xml_parser_t *parser, xmlNodePtr node)
 {
         xml_node_parser_t *p;

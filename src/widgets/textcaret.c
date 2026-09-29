@@ -22,7 +22,7 @@ typedef struct ui_textcaret_task {
         ui_widget_t *widget;
 } ui_textcaret_task_t;
 
-/** 文本插入符相关数据 */
+/** Data related to the text caret */
 typedef struct ui_textcaret {
         int timer_id;
         int blink_interval;

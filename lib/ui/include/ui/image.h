@@ -51,8 +51,8 @@ LIBUI_BEGIN_DECLS
 LIBUI_PUBLIC ui_image_t *ui_get_image(const char *path);
 
 /**
- * 创建 UIImage 对象，从指定路径加载数据
- * 注意：UIImage 对象的数据不会被立刻加载
+ * Create a UIImage object and load data from the specified path
+ * Note: the data of a UIImage object is not loaded immediately
  **/
 LIBUI_PUBLIC ui_image_t *ui_image_create(const char *path);
 
@@ -119,20 +119,20 @@ LIBUI_INLINE bool ui_image_off_progress(ui_image_t *image,
 }
 
 /**
- * 为所有 UIImage 对象加载数据
- * 注意：该函数应在 UI 线程外调用
+ * Load data for all UIImage objects
+ * Note: this function should be called outside the UI thread
  **/
 LIBUI_PUBLIC void ui_load_images(void);
 
 /**
- * 处理 UIImage 的事件
- * 注意：该函数应在 UI 线程内调用
+ * Process the events of UIImage
+ * Note: this function should be called in the UI thread
  */
 LIBUI_PUBLIC void ui_process_image_events(void);
 
 /**
- * 清理未使用的 UIImage 对象，释放内存资源
- * 注意：该函数应在 UI 线程内调用
+ * Clean up unused UIImage objects and free memory resources
+ * Note: this function should be called in the UI thread
  */
 LIBUI_PUBLIC void ui_clear_images(void);
 

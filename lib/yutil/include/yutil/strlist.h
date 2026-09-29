@@ -44,29 +44,29 @@ YUTIL_API int strlist_add_one(strlist_t *strlist, const char *str);
 YUTIL_API int strlist_remove_one(strlist_t *strlist, const char *str);
 
 /**
- * 向字符串组添加字符串
- * @param[in][out] strlist 字符串组
- * @param[in] str 字符串
+ * Add a string to a string list
+ * @param[in][out] strlist The string list
+ * @param[in] str The string
  */
 YUTIL_API int strlist_add(strlist_t *strlist, const char *str);
 
 /**
- * 判断字符串组中是否包含指定字符串
- * @param[in][out] strlist 字符串组
- * @param[in] str 字符串
- * @returns 如果包含则返回 1， 否则返回 0
+ * Check whether a string list contains the specified string
+ * @param[in][out] strlist The string list
+ * @param[in] str The string
+ * @returns Returns 1 if it contains the string, otherwise 0
  */
 YUTIL_API int strlist_has(strlist_t strlist, const char *str);
 
 /**
- * 从字符串组中移除指定字符串
- * @param[in][out] strlist 字符串组
- * @param[in] str 字符串
- * @returns 如果删除成功则返回 1， 否则返回 0
+ * Remove the specified string from a string list
+ * @param[in][out] strlist The string list
+ * @param[in] str The string
+ * @returns Returns 1 if the removal succeeds, otherwise 0
  */
 YUTIL_API int strlist_remove(strlist_t *strlist, const char *str);
 
-/** 释放字符串组 */
+/** Free a string list */
 YUTIL_API void strlist_free(strlist_t strs);
 
 Y_END_DECLS

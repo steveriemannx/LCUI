@@ -28,7 +28,7 @@ static void set_column_gap(css_computed_style_t *computed, uint8_t keyword,
         computed->type_bits.column_gap = keyword;
 }
 
-/* 仅接受 <length-percentage> 与 normal 关键字；不接受 auto */
+/* Only accepts <length-percentage> and the normal keyword; not auto */
 static int cascade_gap_length(const css_style_array_value_t input,
                               css_computed_style_t *computed,
                               void (*setter)(css_computed_style_t *, uint8_t,

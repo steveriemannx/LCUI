@@ -98,7 +98,7 @@ size_t ui_widget_get_children_style_changes(ui_widget_t *w, int type,
         list_create(&selector_names);
         s = ui_widget_create_selector(w);
         n = y_strsplit(name, " ", &names);
-        /* 为分割出来的字符串加上前缀 */
+        /* Add the prefix to the split strings */
         for (i = 0; i < n; ++i) {
                 len = strlen(names[i]) + 2;
                 str = malloc(len * sizeof(char));
@@ -111,7 +111,7 @@ size_t ui_widget_get_children_style_changes(ui_widget_t *w, int type,
                                         &selector_names);
         for (list_each(node, &selector_names)) {
                 char *selector_name = node->data;
-                /* 过滤掉不包含 name 中存在的名称 */
+                /* Filter out the names not contained in name */
                 for (i = 0; i < n; ++i) {
                         char *p = strstr(selector_name, names[i]);
                         if (p) {
@@ -419,7 +419,9 @@ void ui_widget_update_style(ui_widget_t *w)
                 css_cascade_style(w->matched_style, s);
         }
         w->computed_style = *s;
-        // 增加 UIImage 的引用次数，让它在部件销毁和背景图改变前一直可用
+        // Increase the reference count of the UIImage so that it remains
+        // available until the widget is destroyed or the background image
+        // is changed
         if (s->background_image) {
                 image = ui_image_create(s->background_image);
                 ui_image_on_load(image, ui_widget_on_image_load, w);

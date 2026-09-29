@@ -149,7 +149,7 @@ int pd_text_line_set_length(pd_text_line_t *line, int len)
         if (!txtstr) {
                 return -1;
         }
-        /* 清零新增槽位，防止遗留指针被误用或重复释放 */
+        /* Zero the new slots to avoid reusing or freeing stale pointers */
         for (i = old_len; i < len; ++i) {
                 txtstr[i] = NULL;
         }
@@ -159,7 +159,7 @@ int pd_text_line_set_length(pd_text_line_t *line, int len)
         return 0;
 }
 
-/* 释放并清空指定区间 [start, end) 内的字符槽位 */
+/* Free and clear the character slots in the range [start, end) */
 void pd_text_line_erase(pd_text_line_t *line, int start, int end)
 {
         int i;
@@ -178,9 +178,9 @@ void pd_text_line_erase(pd_text_line_t *line, int start, int end)
         }
 }
 
-/* 将 src 行 [src_start, src_end) 的字符所有权转移到 dst 行的 dst_start
- * 起始位置。 转移后 src 对应槽位被置 NULL，防止 delete_line 时被重复释放。
- * 调用者负责保证 dst 已有足够容量。 */
+/* Move the ownership of src's [src_start, src_end) characters to dst's
+ * dst_start. The src slots are set to NULL afterwards, so delete_line cannot
+ * free them twice. The caller ensures dst has enough capacity. */
 void pd_text_line_move(pd_text_line_t *dst, int dst_start, pd_text_line_t *src,
                        int src_start, int src_end)
 {
@@ -304,7 +304,7 @@ void pd_text_destroy(pd_text_t *text)
         free(text);
 }
 
-/* 根据对齐方式，计算文本行的起始x轴位置 */
+/* Compute the start x of a text line from the alignment */
 int pd_text_get_line_start_x(pd_text_t *text, pd_text_line_t *line)
 {
         int width;
@@ -354,7 +354,7 @@ void pd_text_request_typeset(pd_text_t *text, int start_line)
         text->task.update_typeset = true;
 }
 
-/** 获取指定文本行中的文本段的矩形区域 */
+/** Get the rect of a text segment in the given text line */
 int pd_text_get_line_rect(pd_text_t *text, int line_num, int start_col,
                           int end_col, pd_rect_t *rect)
 {
@@ -364,7 +364,7 @@ int pd_text_get_line_rect(pd_text_t *text, int line_num, int start_col,
         if (line_num >= text->lines_length) {
                 return -1;
         }
-        /* 先计算在有效区域内的起始行的y轴坐标 */
+        /* First compute the y of the start line within the valid area */
         rect->y = text->offset_y;
         rect->x = text->offset_x;
         for (i = 0; i < line_num; ++i) {
@@ -506,7 +506,7 @@ void pd_text_update(pd_text_t *text, list_t *rects)
                 text->task.typeset_start_line = 0;
         }
         text->width = pd_text_get_width(text);
-        /* 如果坐标偏移量有变化，记录各个文本行区域 */
+        /* Record the text line areas if the coordinate offset has changed */
         if (text->new_offset_x != text->offset_x ||
             text->new_offset_y != text->offset_y) {
                 pd_text_mark_dirty(text, 0, -1);

@@ -25,14 +25,14 @@
 #define GLYPH_CACHE_DEFAULT_CAPACITY	8192
 
 /**
- * 字形位图缓存使用扁平 hash 表 + LRU 双链表：
- * key   = (face_id, glyph_index, size) 打包为 64 位整数
- * value = glyph_cache_entry_t，包含位图数据和指向 LRU 链表节点的反向引用
- * 命中时移动到链首；超过 capacity 时从链尾驱逐。
+ * The glyph bitmap cache uses a flat hash table + LRU doubly linked list:
+ * key   = (face_id, glyph_index, size) packed into a 64-bit integer
+ * value = glyph_cache_entry_t, holding the bitmap data and a back reference to
+ * its LRU list node. A hit moves it to the head; over capacity evicts the tail.
  */
 
 typedef struct font_style_node {
-	/* 字体列表，按粗细程度存放 */
+	/* Font list, stored by weight */
 	pd_font_face_t *weights[PD_FONT_WEIGHT_TOTAL_NUM];
 } font_style_node_t;
 
@@ -40,12 +40,12 @@ typedef struct font_cache {
 	pd_font_face_t *fonts[FONT_CACHE_SIZE];
 } font_cache_t;
 
-/** 字体字族索引结点 */
+/** Font family index node */
 typedef struct font_family_node {
-	/** 字体的字族名称  */
+	/** The family name of the font  */
 	char *family_name;
 
-	/** 字体列表，按风格存放 */
+	/** Font list, stored by style */
 	font_style_node_t styles[PD_FONT_STYLE_TOTAL_NUM];
 } font_family_node_t;
 
@@ -94,7 +94,7 @@ PD_INLINE font_family_node_t *select_font_family_cache(const char *family_name)
 PD_INLINE uint64_t glyph_cache_pack_key(int face_id, unsigned glyph_index,
                                         int size)
 {
-        /* face_id 占高 16 位，glyph_index 占中间 32 位，size 占低 16 位。 */
+        /* face_id: high 16 bits, glyph_index: middle 32, size: low 16 bits. */
         return ((uint64_t)(unsigned)face_id << 48) |
                ((uint64_t)glyph_index << 16) |
                (uint64_t)((unsigned)size & 0xFFFFu);
@@ -153,8 +153,8 @@ static void glyph_cache_evict_one(void)
                 return;
         }
         victim = node->data;
-        /* dict_delete 触发 destructor 会再次解链 lru_node，
-         * 所以这里只清掉反向引用并把 list_node 自己处理掉 */
+        /* dict_delete triggers the destructor which unlinks lru_node again,
+         * so only the back reference is cleared and list_node is freed here */
         list_unlink(&fontlib.glyph_lru, node);
         list_node_free(node);
         victim->lru_node = NULL;
@@ -291,7 +291,7 @@ pd_glyph_bitmap_t *pd_font_cache_add_bitmap(wchar_t ch, int font_id, int size,
         if (!fontlib.active) {
                 return NULL;
         }
-        /* 当字体ID不大于0时，使用内置字体 */
+        /* Use the in-core font when the font ID is not greater than 0 */
         if (font_id <= 0) {
                 font_id = fontlib.incore_font->id;
         }
@@ -299,13 +299,13 @@ pd_glyph_bitmap_t *pd_font_cache_add_bitmap(wchar_t ch, int font_id, int size,
         key = glyph_cache_pack_key(font_id, glyph_index, size);
         entry = dict_fetch_value(fontlib.glyph_cache, &key);
         if (entry) {
-                /* 已存在则就地覆盖位图数据 */
+                /* Overwrite the bitmap data in place if the entry exists */
                 pd_glyph_bitmap_destroy(&entry->bitmap);
                 memcpy(&entry->bitmap, bmp, sizeof(pd_glyph_bitmap_t));
                 glyph_cache_touch(entry);
                 return &entry->bitmap;
         }
-        /* 容量到上限时驱逐链尾 */
+        /* Evict the tail of the list when capacity is reached */
         while (fontlib.glyph_cache_capacity > 0 &&
                fontlib.glyph_lru.length >= fontlib.glyph_cache_capacity) {
                 glyph_cache_evict_one();
@@ -368,7 +368,7 @@ int pd_font_cache_get_bitmap(unsigned ch, int font_id, int size,
                 *bmp = pd_font_cache_add_bitmap(ch, font_id, size, &tmp);
                 return 0;
         }
-        /* 渲染失败：回退到 .notdef（ch == 0）位图 */
+        /* Render failed: fall back to the .notdef (ch == 0) bitmap */
         ret = pd_font_cache_get_bitmap(0, font_id, size, bmp);
         if (ret != 0) {
                 *bmp = pd_font_cache_add_bitmap(0, font_id, size, &tmp);
@@ -567,8 +567,8 @@ static pd_font_weight_t find_lighter_weight(font_style_node_t *snode,
 }
 
 /**
- * 在未找到指定字重的字体时进行回退，找到合适的字体
- * 回退规则的参考文档：https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight#Fallback_weights
+ * Fall back to a suitable font when no font of the given weight is found
+ * Reference for the fallback rules: https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight#Fallback_weights
  */
 static pd_font_weight_t font_weight_fallback(font_style_node_t *snode,
                                              pd_font_weight_t weight)
@@ -850,7 +850,7 @@ static void pd_font_library_init_base(void)
         fontlib.font_families = dict_create(&dict_type, NULL);
         fontlib.font_family_aliases = dict_create(&alias_dict_type, NULL);
 
-        /* glyph 位图缓存：key 为打包后的 64 位整数 */
+        /* glyph bitmap cache: the key is the packed 64-bit integer */
         memset(&glyph_dict_type, 0, sizeof(glyph_dict_type));
         glyph_dict_type.hash_function = glyph_cache_key_hash;
         glyph_dict_type.key_compare = glyph_cache_key_compare;
@@ -867,14 +867,14 @@ static void pd_font_library_init_base(void)
 static void pd_font_library_init_engine(void)
 {
         int fid;
-        /* 先初始化内置的字体引擎 */
+        /* Initialize the in-core font engine first */
         fontlib.engine = &fontlib.engines[0];
         pd_incore_font_create(fontlib.engine);
         pd_font_load_file("in-core.inconsolata");
         fid = pd_font_get_id("inconsolata", 0, 0);
         fontlib.incore_font = pd_font_get(fid);
         fontlib.default_font = fontlib.incore_font;
-        /* 然后看情况启用其它字体引擎 */
+        /* Then enable other font engines as available */
 #ifdef PANDAGL_HAS_FREETYPE
         if (pd_freetype_engine_init(&fontlib.engines[1]) == 0) {
                 fontlib.engine = &fontlib.engines[1];
@@ -900,7 +900,7 @@ static void pd_font_library_destroy_base(void)
         }
         dict_destroy(fontlib.font_family_aliases);
         dict_destroy(fontlib.font_families);
-        /* dict 的 val_destructor 会解链并释放各 entry 的 LRU 节点 */
+        /* The dict val_destructor unlinks and frees each entry's LRU node */
         dict_destroy(fontlib.glyph_cache);
         free(fontlib.font_cache);
         fontlib.font_cache = NULL;

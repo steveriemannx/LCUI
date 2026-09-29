@@ -40,8 +40,8 @@ LIBCSS_PUBLIC const css_valdef_t *css_resolve_valdef_alias(const char *alias);
 LIBCSS_PUBLIC css_valdef_t *css_compile_valdef(const char *definition_str);
 
 /**
- * 根据 CSS 值的定义，解析字符串中与之匹配的值
- * @return 成功返回已解析的字符串长度，否则返回 -1
+ * Parse the value in the string that matches the CSS value definition
+ * @return the length of the parsed string on success, otherwise -1
  */
 LIBCSS_PUBLIC int css_parse_value(const css_valdef_t *valdef, const char *str,
                                   css_style_value_t *val);

@@ -34,14 +34,14 @@ enum css_selector_name_finder_level {
         LEVEL_TOTAL_NUM
 };
 
-/* 样式表查找器的上下文数据结构 */
+/* Context data structure of the style declaration finder */
 typedef struct css_selector_name_collector {
-        int level;                 /**< 当前选择器层级 */
-        int class_i;               /**< 当前处理到第几个类名 */
-        int status_i;              /**< 当前处理到第几个状态名（伪类名） */
-        int name_i;                /**< 选择器名称从第几个字符开始 */
-        char name[MAX_NAME_LEN];   /**< 选择器名称缓存 */
-        css_selector_node_t *node; /**< 针对的选择器结点 */
+        int level;                 /**< Current selector level */
+        int class_i;               /**< Index of the processed class name */
+        int status_i;              /**< Index of the status (pseudo-class) */
+        int name_i;                /**< Index of the selector name start char */
+        char name[MAX_NAME_LEN];   /**< Selector name buffer */
+        css_selector_node_t *node; /**< Target selector node */
 } css_selector_name_collector_t;
 
 static void css_selector_init_name_collector(
@@ -66,7 +66,7 @@ static void css_selector_destroy_name_collector(
         sfinder->level = LEVEL_NONE;
 }
 
-/* 生成选择器全名列表 */
+/* Generate the selector full name list */
 static int css_selector_collect_name(css_selector_name_collector_t *sfinder,
                                      list_t *list)
 {
@@ -79,7 +79,7 @@ static int css_selector_collect_name(css_selector_name_collector_t *sfinder,
         old_level = sfinder->level;
         switch (sfinder->level) {
         case LEVEL_TYPE:
-                /* 按类型选择器生成选择器全名 */
+                /* Generate the selector full name for a type selector */
                 if (!sfinder->node->type) {
                         return 0;
                 }
@@ -87,7 +87,7 @@ static int css_selector_collect_name(css_selector_name_collector_t *sfinder,
                 list_append(list, y_strdup(fullname));
                 break;
         case LEVEL_ID:
-                /* 按ID选择器生成选择器全名 */
+                /* Generate the selector full name for an ID selector */
                 if (!sfinder->node->id) {
                         return 0;
                 }
@@ -100,9 +100,9 @@ static int css_selector_collect_name(css_selector_name_collector_t *sfinder,
                 if (!sfinder->node->classes) {
                         return 0;
                 }
-                /* 按类选择器生成选择器全名
-                 * 假设当前选择器全名为：text#main-btn-text，且有 .a .b .c
-                 * 这三个类，那么下面的处理将会拆分成以下三个选择器：
+                /* Generate the selector full name for a class selector
+                 * Assuming the full name is text#main-btn-text with the three
+                 * classes .a .b .c, this splits it into three selectors:
                  * text#test-text.a
                  * text#test-text.b
                  * text#test-text.a
@@ -114,7 +114,8 @@ static int css_selector_collect_name(css_selector_name_collector_t *sfinder,
                         snprintf(fullname + len, avail - len, "%s",
                                  sfinder->node->classes[i]);
                         list_append(list, y_strdup(fullname));
-                        /* 将当前选择器名与其它层级的选择器名组合 */
+                        /* Combine the current selector name with the names
+                         * of the other levels */
                         while (sfinder->level < LEVEL_TOTAL_NUM) {
                                 count +=
                                     css_selector_collect_name(sfinder, list);
@@ -130,7 +131,8 @@ static int css_selector_collect_name(css_selector_name_collector_t *sfinder,
                 if (!sfinder->node->classes) {
                         return 0;
                 }
-                /* 按类选择器生成选择器全名，结果类似于这样：
+                /* Generate the selector full name for a class selector,
+                 * the result looks like this:
                  * text#test-text.a.b
                  * text#test-text.a.c
                  * text#test-text.b.c
@@ -148,7 +150,7 @@ static int css_selector_collect_name(css_selector_name_collector_t *sfinder,
                         sfinder->class_i = 0;
                         sfinder->level = LEVEL_STATUS;
                         /**
-                         * 递归拼接伪类名，例如：
+                         * Recursively concatenate pseudo-class names, e.g.:
                          * text#main-btn-text:active
                          */
                         count += css_selector_collect_name(sfinder, list);
@@ -164,9 +166,10 @@ static int css_selector_collect_name(css_selector_name_collector_t *sfinder,
                 fullname[len++] = ':';
                 sfinder->level = LEVEL_STATUS_2;
                 /**
-                 * 按伪类选择器生成选择器全名
-                 * 假设当前选择器全名为：text#main-btn-text:hover:focus:active
-                 * 那么下面的循环会将它拆分为以下几个选择器：
+                 * Generate the selector full name for a pseudo-class selector
+                 * Assuming the current selector full name is
+                 * text#main-btn-text:hover:focus:active, the loop below will
+                 * split it into the following selectors:
                  * text#main-btn-text:active
                  * text#main-btn-text:active:focus
                  * text#main-btn-text:active:focus:hover
@@ -180,7 +183,8 @@ static int css_selector_collect_name(css_selector_name_collector_t *sfinder,
                         strcpy(fullname + len, sfinder->node->status[i]);
                         list_append(list, y_strdup(fullname));
                         /**
-                         * 递归调用，以一层层拼接出像下面这样的选择器：
+                         * Recursive call, concatenating level by level to
+                         * build a selector like the following:
                          * text#main-btn-text:active:focus:hover
                          */
                         count += css_selector_collect_name(sfinder, list);
@@ -193,7 +197,7 @@ static int css_selector_collect_name(css_selector_name_collector_t *sfinder,
                 if (!sfinder->node->status) {
                         return 0;
                 }
-                /** 按伪类选择器生成选择器全名 */
+                /** Generate the full name for a pseudo-class selector */
                 for (i = 0; sfinder->node->status[i]; ++i) {
                         if (i <= sfinder->status_i) {
                                 continue;
@@ -413,7 +417,7 @@ css_selector_t *css_selector_create(const char *selector)
                                         type = *p;
                                         continue;
                                 }
-                                /* 保存上个结点 */
+                                /* Save the previous node */
                                 rank = selector_node_save(node, name,
                                                           name_index, type);
                                 name_valid = true;

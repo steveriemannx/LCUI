@@ -18,12 +18,12 @@
 #include <LCUI/widgets/anchor.h>
 
 typedef struct xml_loader {
-        /** 键，作为在视图加载完后传给事件处理器的额外参数 */
+        /** Key, an extra argument passed to the event handler on load */
         char *key;
-        char *filepath;      /**< 视图文件路径 */
-        char *target_id;     /**< 目标容器部件的标识 */
-        ui_widget_t *pack;   /**< 已经加载的视图内容包 */
-        ui_widget_t *widget; /**< 触发视图加载器的部件 */
+        char *filepath;      /**< View file path */
+        char *target_id;     /**< Identifier of the target container widget */
+        ui_widget_t *pack;   /**< Content pack of the loaded view */
+        ui_widget_t *widget; /**< Widget that triggers the view loader */
 } xml_loader_t;
 
 static struct ui_anchor_module {

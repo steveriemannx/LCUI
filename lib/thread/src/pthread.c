@@ -39,7 +39,7 @@ static struct thread_manager_module {
         list_t threads;
 } thread_manager;
 
-/** 初始化一个条件变量 */
+/** Initialize a condition variable */
 int thread_cond_init(thread_cond_t *cond)
 {
         *cond = malloc(sizeof(thread_cond_record_t));
@@ -54,7 +54,7 @@ int thread_cond_init(thread_cond_t *cond)
         return 0;
 }
 
-/** 销毁一个条件变量 */
+/** Destroy a condition variable */
 int thread_cond_destroy(thread_cond_t *cond)
 {
         if (pthread_cond_destroy(&(*cond)->handle) != 0) {
@@ -65,13 +65,13 @@ int thread_cond_destroy(thread_cond_t *cond)
         return 0;
 }
 
-/** 阻塞当前线程，等待条件成立 */
+/** Block the current thread until the condition is satisfied */
 int thread_cond_wait(thread_cond_t *cond, thread_mutex_t *mutex)
 {
         return pthread_cond_wait(&(*cond)->handle, &(*mutex)->handle);
 }
 
-/** 计时阻塞当前线程，等待条件成立 */
+/** Block the current thread until the condition is satisfied or times out */
 int thread_cond_timedwait(thread_cond_t *cond, thread_mutex_t *mutex,
                           unsigned int ms)
 {
@@ -97,13 +97,13 @@ int thread_cond_timedwait(thread_cond_t *cond, thread_mutex_t *mutex,
         return -1;
 }
 
-/** 唤醒一个阻塞等待条件成立的线程 */
+/** Wake up a thread blocked waiting for the condition */
 int thread_cond_signal(thread_cond_t *cond)
 {
         return pthread_cond_signal(&(*cond)->handle);
 }
 
-/** 唤醒所有阻塞等待条件成立的线程 */
+/** Wake up all threads blocked waiting for the condition */
 int thread_cond_broadcast(thread_cond_t *cond)
 {
         return pthread_cond_broadcast(&(*cond)->handle);

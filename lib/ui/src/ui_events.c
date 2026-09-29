@@ -60,15 +60,15 @@ typedef struct ui_event_mapping {
 	char *name;
 } ui_event_mapping_t;
 
-/** 鼠标点击记录 */
+/** Mouse click record */
 typedef struct ui_widget_click_record {
-	int64_t time;       /**< 时间 */
-	float x, y;         /**< 坐标 */
-	int interval;       /**< 与上次点击时的时间间隔 */
-	ui_widget_t *widget; /**< 被点击的部件 */
+	int64_t time;       /**< Time */
+	float x, y;         /**< Coordinates */
+	int interval;       /**< Time interval since the last click */
+	ui_widget_t *widget; /**< Clicked widget */
 } ui_widget_click_record_t;
 
-/** 当前功能模块的相关数据 */
+/** Data related to the current module */
 static struct ui_events {
 	ui_widget_t *mouse_capturer;
 	list_t touch_capturers;
@@ -265,10 +265,10 @@ static int ui_add_touch_capturer(list_t *list, ui_widget_t *w, int point_id)
                 list_append(list, tc);
                 return 0;
         }
-        /* 获取该部件的触点捕捉记录 */
+        /* Get the touch capture records of this widget */
         for (list_each(node, list)) {
                 tc = node->data;
-                /* 清除与该触点绑定的其它捕捉记录 */
+                /* Clear the other capture records bound to this point */
                 for (list_each(ptnode, &tc->points)) {
                         if (point_id == *(int *)ptnode->data) {
                                 if (tc->widget == w) {
@@ -281,7 +281,7 @@ static int ui_add_touch_capturer(list_t *list, ui_widget_t *w, int point_id)
                         break;
                 }
         }
-        /* 如果没有该部件的触点捕捉记录 */
+        /* If there is no touch capture record for this widget */
         if (!tc || tc->widget != w) {
                 tc = malloc(sizeof(ui_touch_capturer_t));
                 tc->widget = w;
@@ -289,7 +289,7 @@ static int ui_add_touch_capturer(list_t *list, ui_widget_t *w, int point_id)
                 list_create(&tc->points);
                 list_append_node(list, &tc->node);
         }
-        /* 追加触点捕捉记录 */
+        /* Append the touch capture record */
         data = malloc(sizeof(int));
         *data = point_id;
         list_append(&tc->points, data);
@@ -436,7 +436,8 @@ static ui_widget_t *ui_widget_get_next_at(ui_widget_t *widget, float x, float y)
         node = &widget->node;
         for (node = node->next; node; node = node->next) {
                 w = node->data;
-                /* 如果忽略事件处理，则向它底层的兄弟部件传播事件 */
+                /* If event handling is ignored, propagate the event to
+                 * the sibling widgets below it */
                 if (w->computed_style.type_bits.pointer_events ==
                     CSS_POINTER_EVENTS_NONE) {
                         continue;
@@ -549,10 +550,11 @@ int ui_widget_emit_event(ui_widget_t *w, ui_event_t e, void *arg)
         }
         if (is_pointer_event) {
                 ui_widget_get_offset(w->parent, NULL, &x, &y);
-                /* 转换成相对于父级部件内容框的坐标 */
+                /* Convert to coordinates relative to the parent content box */
                 x = pointer_x - x;
                 y = pointer_y - y;
-                /* 从当前部件后面找到当前坐标点命中的兄弟部件 */
+                /* Find the sibling widget hit by the current point,
+                 * starting after the current widget */
                 sibling = ui_widget_get_next_at(w, x, y);
                 if (sibling) {
                         return ui_widget_call_listeners(sibling, e, arg);
@@ -949,7 +951,7 @@ static int ui_on_text_input(ui_event_t *origin_event)
         return 0;
 }
 
-/** 分发触控事件给对应的部件 */
+/** Dispatch the touch event to the corresponding widgets */
 static int ui_dispatch_touch_event(list_t *capturers, ui_touch_point_t *points,
                                    int n_points)
 {
@@ -965,7 +967,7 @@ static int ui_dispatch_touch_event(list_t *capturers, ui_touch_point_t *points,
         e.type = UI_EVENT_TOUCH;
         e.cancel_bubble = false;
         e.touch.points = malloc(sizeof(ui_touch_point_t) * n_points);
-        /* 先将各个触点按命中的部件进行分组 */
+        /* First group the touch points by the widgets they hit */
         for (i = 0; i < n_points; ++i) {
                 target = ui_widget_at(root, (int)round(points[i].x / scale),
                                       (int)round(points[i].y / scale));
@@ -984,7 +986,7 @@ static int ui_dispatch_touch_event(list_t *capturers, ui_touch_point_t *points,
         }
         count = 0;
         e.touch.n_points = 0;
-        /* 然后向命中的部件发送触控事件 */
+        /* Then send the touch event to the widgets that were hit */
         for (list_each(node, capturers)) {
                 tc = node->data;
                 for (i = 0; i < n_points; ++i) {
@@ -1017,11 +1019,12 @@ static int ui_on_touch_event(ui_event_t *e)
         n = e->touch.n_points;
         points = e->touch.points;
         list_create(&capturers);
-        /* 合并现有的触点捕捉记录 */
+        /* Merge the existing touch capture records */
         for (list_each(node, &ui_events.touch_capturers)) {
                 ui_touch_capturer_t *tc = node->data;
                 for (i = 0; i < n; ++i) {
-                        /* 如果没有触点记录，则说明是捕获全部触点 */
+                        /* If there is no touch point record, it means
+                         * all touch points are captured */
                         if (tc->points.length == 0) {
                                 ui_add_touch_capturer(&capturers, tc->widget,
                                                       points[i].id);

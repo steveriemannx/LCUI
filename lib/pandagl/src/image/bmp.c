@@ -76,8 +76,8 @@ pd_error_t pd_bmp_reader_read_header(pd_image_reader_t *reader)
                 return -EINVAL;
         }
         n = pd_file_reader_read(reader->file_reader, buffer, 14);
-        /* 受到字节对齐影响，直接将读到的写到结构体变量里会让最后一个成员
-         * 变量的值不正常，因此需要手动为其成员变量赋值 */
+        /* Due to byte alignment, writing the read bytes right into the struct
+         * members would be wrong, so the fields are assigned by hand */
         pd_bmp_header_init(&bmp_reader->header, buffer);
         if (n < 14 || bmp_reader->header.type != 0x4D42) {
                 return PD_ERROR_IMAGE_HEADER_INVALID;
@@ -110,7 +110,7 @@ void pd_bmp_reader_finish(pd_image_reader_t *reader)
 void pd_bmp_reader_start(pd_image_reader_t *reader)
 {
         pd_bmp_reader_t *bmp_reader = reader->reader_data;
-        /* 信息头中的偏移位置是相对于起始处，需要减去当前已经偏移的位置 */
+        /* The info header offset is from the start, subtract what was read */
         long offset = bmp_reader->header.offset - bmp_reader->info.size - 14;
         pd_file_reader_skip(reader->file_reader, offset);
 }
@@ -122,7 +122,7 @@ void pd_bmp_reader_read_row(pd_image_reader_t *reader, pd_canvas_t *graph)
         pd_bmp_reader_t *bmp_reader = reader->reader_data;
         pd_bmp_info_header_t *info = &bmp_reader->info;
 
-        /* 暂时不实现其它色彩类型处理 */
+        /* Other color types are not handled yet */
         if (info->bits != 24) {
                 return;
         }
@@ -131,7 +131,7 @@ void pd_bmp_reader_read_row(pd_image_reader_t *reader, pd_canvas_t *graph)
                 return;
         }
         buffer = malloc(bytes_per_row);
-        /* 从最后一行开始保存 */
+        /* Save starting from the last row */
         dest = graph->bytes + graph->bytes_per_row * (graph->height - 1);
         for (row = 0; row < info->height; ++row) {
                 n = pd_file_reader_read(reader->file_reader, buffer,

@@ -118,7 +118,7 @@ static int ui_cursor_load_default_image(pd_canvas_t *buff)
 
 static void ui_cursor_on_mouse_event(ptk_event_t *e, void *arg)
 {
-        // TODO: 事件中的 xy 是否需要转换为相对于窗口客户区？
+        // TODO: convert the event x/y to window client area coordinates?
         ui_cursor.x = e->mouse.x;
         ui_cursor.y = e->mouse.y;
         if (ui_cursor.window != e->window) {
@@ -200,7 +200,7 @@ int ui_cursor_paint(ptk_window_t *w, ptk_window_paint_t *paint)
         if (!ui_cursor.visible) {
                 return 0;
         }
-        // TODO: 转换为窗口客户区内的坐标
+        // TODO: convert to coordinates in the window client area
         x = ui_cursor.x - paint->rect.x;
         y = ui_cursor.y - paint->rect.y;
         return pd_canvas_mix(&paint->canvas, &ui_cursor.image, x, y, false);
@@ -212,9 +212,9 @@ void ui_cursor_init(void)
 
         pd_canvas_init(&image);
         pd_canvas_init(&ui_cursor.image);
-        /* 载入自带的游标的图形数据 */
+        /* Load the graphic data of the built-in cursor */
         ui_cursor_load_default_image(&image);
-        // TODO: 移除 app 依赖
+        // TODO: remove the app dependency
         ptk_on_event(PTK_EVENT_MOUSEMOVE, ui_cursor_on_mouse_event, NULL);
         ui_cursor_set_image(&image);
         pd_canvas_destroy(&image);

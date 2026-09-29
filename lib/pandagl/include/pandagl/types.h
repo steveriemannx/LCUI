@@ -18,8 +18,8 @@
 
 typedef enum pd_color_type_t {
         PD_COLOR_TYPE_UNSUPPORTED,
-        PD_COLOR_TYPE_INDEX8,   /**< 8位索引 */
-        PD_COLOR_TYPE_GRAY8,    /**< 8位灰度 */
+        PD_COLOR_TYPE_INDEX8,   /**< 8-bit index */
+        PD_COLOR_TYPE_GRAY8,    /**< 8-bit grayscale */
         PD_COLOR_TYPE_RGB323,   /**< RGB323 */
         PD_COLOR_TYPE_ARGB2222, /**< ARGB2222 */
         PD_COLOR_TYPE_RGB555,   /**< RGB555 */
@@ -80,11 +80,11 @@ struct pd_canvas {
         size_t mem_size;
 };
 
-/** 进行绘制时所需的上下文 */
+/** Context required for drawing */
 typedef struct pd_context {
-        pd_rect_t rect;     /**< 需要绘制的区域 */
-        pd_canvas_t canvas; /**< 绘制后的位图缓存（可称为：画布） */
-        bool with_alpha;    /**< 绘制时是否需要处理 alpha 通道 */
+        pd_rect_t rect;     /**< The area to be drawn */
+        pd_canvas_t canvas; /**< Bitmap cache after drawing (canvas) */
+        bool with_alpha;    /**< Whether alpha is handled when drawing */
 } pd_context_t;
 
 typedef struct pd_background {

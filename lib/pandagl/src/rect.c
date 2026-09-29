@@ -247,11 +247,11 @@ int pd_rects_add(list_t *list, pd_rect_t *rect)
         }
         for (list_each(node, list)) {
                 p = node->data;
-                /* 如果被现有的矩形包含 */
+                /* If it is included by an existing rectangle */
                 if (pd_rect_is_include(p, rect)) {
                         return -2;
                 }
-                /* 如果包含现有的矩形 */
+                /* If it includes an existing rectangle */
                 if (pd_rect_is_include(rect, p)) {
                         prev = node->prev;
                         free(node->data);
@@ -291,7 +291,7 @@ int pd_rects_remove(list_t *list, pd_rect_t *rect)
         list_create(&extra_list);
         for (list_each(node, list)) {
                 p = node->data;
-                /* 如果包含现有的矩形 */
+                /* If it includes an existing rectangle */
                 if (pd_rect_is_include(rect, p)) {
                         prev = node->prev;
                         free(node->data);

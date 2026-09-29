@@ -310,7 +310,9 @@ void ui_server_connect(ui_widget_t *widget, ptk_window_t *window)
         list_append(&ui_server.connections, conn);
         ui_widget_on(widget, "destroy", ui_server_on_destroy_widget, NULL);
         ui_mutation_observer_observe(ui_server.observer, widget, options);
-        // 在同步前处理所有消息，包括窗口位置、大小变更消息，避免在初次更新时组件的位置和尺寸被窗口覆盖
+        // Process all messages before syncing, including window position
+        // and size change messages, so that the position and size of the
+        // widget are not overwritten by the window on the first update
         ptk_process_native_events(PTK_PROCESS_EVENTS_ALL_IF_PRESENT);
 }
 

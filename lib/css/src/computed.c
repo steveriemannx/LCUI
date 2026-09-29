@@ -841,9 +841,9 @@ int css_cascade_style(const css_style_decl_t *style,
                 propdef = css_get_propdef(prop->key);
                 assert(propdef && propdef->cascade);
                 propdef->cascade(prop->value.array_value, computed);
-                // TODO: 确定 cascade() 返回值的用法
+                // TODO: determine how to use the return value of cascade()
         }
-        // 给其它属性设置初始值
+        // Set initial values for the other properties
         for (i = 0; i < count; ++i) {
                 if (setted_props[i]) {
                         continue;

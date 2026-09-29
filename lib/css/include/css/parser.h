@@ -20,13 +20,13 @@
 LIBCSS_BEGIN_DECLS
 
 typedef enum css_parser_target_t {
-        CSS_PARSER_TARGET_NONE,      /**< 无 */
-        CSS_PARSER_TARGET_RULE_NAME, /**< 规则名称 */
-        CSS_PARSER_TARGET_RULE_DATA, /**< 规则数据 */
-        CSS_PARSER_TARGET_SELECTOR,  /**< 选择器 */
-        CSS_PARSER_TARGET_KEY,       /**< 属性名 */
-        CSS_PARSER_TARGET_VALUE,     /**< 属性值 */
-        CSS_PARSER_TARGET_COMMENT,   /**< 注释 */
+        CSS_PARSER_TARGET_NONE,      /**< None */
+        CSS_PARSER_TARGET_RULE_NAME, /**< Rule name */
+        CSS_PARSER_TARGET_RULE_DATA, /**< Rule data */
+        CSS_PARSER_TARGET_SELECTOR,  /**< Selector */
+        CSS_PARSER_TARGET_KEY,       /**< Property name */
+        CSS_PARSER_TARGET_VALUE,     /**< Property value */
+        CSS_PARSER_TARGET_COMMENT,   /**< Comment */
         CSS_PARSER_TARGET_TOTAL_NUM
 } css_parser_target_t;
 
@@ -50,30 +50,30 @@ typedef struct css_rule_parser {
 } css_rule_parser_t;
 
 typedef struct css_style_parser {
-        char *dirname; /**< 当前所在的目录 */
-        char *space;   /**< 样式记录所属的空间 */
+        char *dirname; /**< Current directory */
+        char *space;   /**< Space the style declarations belong to */
         char *property;
 
         void (*style_handler)(int, css_style_value_t *, void *);
         void *style_handler_arg;
 
-        list_t selectors;        /**< 当前匹配到的选择器列表 */
-        css_style_decl_t *style; /**< 当前缓存的样式表 */
+        list_t selectors;        /**< Currently matched selector list */
+        css_style_decl_t *style; /**< Currently cached style declarations */
 } css_style_parser_t;
 
 typedef struct css_comment_parser {
-        /** 是否为单行注释 */
+        /** Whether it is a single-line comment */
         bool is_line_comment;
 
-        /** 保存的上一个目标，解析完注释后将还原成该目标 */
+        /** Previously saved target, restored after the comment is parsed */
         css_parser_target_t prev_target;
 } css_comment_parser_t;
 
-/** CSS 代码解析器的环境参数（上下文数据） */
+/** Environment parameters (context data) of the CSS parser */
 struct css_parser {
-        int pos;         /**< 缓存中的字符串的下标位置 */
-        const char *cur; /**< 用于遍历字符串的指针 */
-        char *space;     /**< 样式记录所属的空间 */
+        int pos;         /**< Index of the string position in the buffer */
+        const char *cur; /**< Pointer used to traverse the string */
+        char *space;     /**< Space the style declarations belong to */
         char *buffer;
         size_t buffer_size;
 

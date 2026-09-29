@@ -38,19 +38,19 @@ LIBUI_INLINE void ui_compute_rect(pd_rect_t *actual_rect, const ui_rect_t *rect)
         actual_rect->height = ui_compute(rect->height);
 }
 
-/** 设置密度 */
+/** Set the density */
 LIBUI_PUBLIC void ui_set_density(float density);
 
-/** 设置缩放密度 */
+/** Set the scaled density */
 LIBUI_PUBLIC void ui_set_scaled_density(float density);
 
-/** 设置密度等级 */
+/** Set the density level */
 LIBUI_PUBLIC void ui_set_density_level(ui_density_Level_t level);
 
-/** 设置缩放密度等级 */
+/** Set the scaled density level */
 LIBUI_PUBLIC void ui_set_scaled_density_level(ui_density_Level_t level);
 
-/** 设置全局缩放比例 */
+/** Set the global scale */
 LIBUI_PUBLIC void ui_set_scale(float scale);
 
 LIBUI_END_DECLS

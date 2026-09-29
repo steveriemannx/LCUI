@@ -32,16 +32,18 @@
 LIBUI_XML_BEGIN_DECLS
 
 /**
- * 从字符串中载入界面配置代码，解析并生成相应的图形界面(元素)
- * @param[in] str 包含界面配置代码的字符串
- * @return 正常解析会返回一个部件，出现错误则返回 NULL
+ * Load UI configuration code from a string, parse it and create the
+ * corresponding UI elements
+ * @param[in] str string containing the UI configuration code
+ * @return a widget on success, or NULL on error
  */
 LIBUI_XML_PUBLIC ui_widget_t *ui_load_xml_string(const char *str, int size);
 
 /**
- * 从文件中载入界面配置代码，解析并生成相应的图形界面(元素)
- * @param[in] filepath 文件路径
- * @return 正常解析会返回一个部件，出现错误则返回 NULL
+ * Load UI configuration code from a file, parse it and create the
+ * corresponding UI elements
+ * @param[in] filepath file path
+ * @return a widget on success, or NULL on error
  */
 LIBUI_XML_PUBLIC ui_widget_t *ui_load_xml_file(const char *filepath);
 

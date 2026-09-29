@@ -41,7 +41,7 @@ static struct thread_manager_module {
         list_t threads;
 } thread_manager;
 
-/** 初始化一个条件变量 */
+/** Initialize a condition variable */
 int thread_cond_init(thread_cond_t *cond)
 {
         HANDLE handle;
@@ -58,7 +58,7 @@ int thread_cond_init(thread_cond_t *cond)
         return 0;
 }
 
-/** 销毁一个条件变量 */
+/** Destroy a condition variable */
 int thread_cond_destroy(thread_cond_t *cond)
 {
         CloseHandle((*cond)->handle);
@@ -67,7 +67,7 @@ int thread_cond_destroy(thread_cond_t *cond)
         return 0;
 }
 
-/** 阻塞当前线程，等待条件成立 */
+/** Block the current thread until the condition is satisfied */
 int thread_cond_wait(thread_cond_t *cond, thread_mutex_t *mutex)
 {
         int ret;
@@ -89,7 +89,7 @@ int thread_cond_wait(thread_cond_t *cond, thread_mutex_t *mutex)
         return ret;
 }
 
-/** 计时阻塞当前线程，等待条件成立 */
+/** Block the current thread until the condition is satisfied or times out */
 int thread_cond_timedwait(thread_cond_t *cond, thread_mutex_t *mutex,
                           unsigned int ms)
 {
@@ -112,10 +112,10 @@ int thread_cond_timedwait(thread_cond_t *cond, thread_mutex_t *mutex,
         return ret;
 }
 
-/** 唤醒一个阻塞等待条件成立的线程 */
+/** Wake up a thread blocked waiting for the condition */
 int thread_cond_signal(thread_cond_t *cond)
 {
-        /* 当编译为 Windows 运行时组件时，直接改为广播 */
+        /* When compiled as a Windows Runtime component, broadcast instead */
 #ifdef PTK_UWP
         return thread_cond_broadcast(cond);
 #else
@@ -126,7 +126,7 @@ int thread_cond_signal(thread_cond_t *cond)
 #endif
 }
 
-/** 唤醒所有阻塞等待条件成立的线程 */
+/** Wake up all threads blocked waiting for the condition */
 int thread_cond_broadcast(thread_cond_t *cond)
 {
         if (SetEvent((*cond)->handle)) {

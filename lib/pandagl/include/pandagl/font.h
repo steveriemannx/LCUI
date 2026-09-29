@@ -36,12 +36,12 @@ typedef enum pd_font_weight_t {
 } pd_font_weight_t;
 
 typedef struct pd_glyph_bitmap {
-        int top;   /**< 与顶边框的距离 */
-        int left;  /**< 与左边框的距离 */
-        int width; /**< 位图宽度 */
-        int rows;  /**< 位图行数 */
+        int top;   /**< distance from the top border */
+        int left;  /**< distance from the left border */
+        int width; /**< bitmap width */
+        int rows;  /**< bitmap rows */
         int pitch;
-        uint8_t *buffer; /**< 字体位图数据 */
+        uint8_t *buffer; /**< font bitmap data */
         struct {
                 int hori_advance, vert_advance;
                 int bbox_width, bbox_height;
@@ -52,13 +52,13 @@ typedef struct pd_glyph_bitmap {
 typedef struct pd_font_engine pd_font_engine_t;
 
 typedef struct pd_font_face {
-        int id;                   /**< 字体信息ID */
-        char *style_name;         /**< 样式名称 */
-        char *family_name;        /**< 字族名称 */
-        void *data;               /**< 相关数据 */
-        pd_font_style_t style;    /**< 风格 */
-        pd_font_weight_t weight;  /**< 粗细程度 */
-        pd_font_engine_t *engine; /**< 所属的字体引擎 */
+        int id;                   /**< font face ID */
+        char *style_name;         /**< style name */
+        char *family_name;        /**< family name */
+        void *data;               /**< related data */
+        pd_font_style_t style;    /**< style */
+        pd_font_weight_t weight;  /**< weight */
+        pd_font_engine_t *engine; /**< the font engine it belongs to */
 } pd_font_face_t;
 
 struct pd_font_engine {
@@ -71,7 +71,7 @@ struct pd_font_engine {
 
 PD_BEGIN_DECLS
 
-/** 将字体位图绘制到目标图像上 */
+/** Draw a font bitmap onto the target image */
 PD_PUBLIC int pd_canvas_mix_glyph_bitmap(pd_canvas_t *graph, pd_pos_t pos,
                                          const pd_glyph_bitmap_t *bmp,
                                          pd_color_t color);
@@ -88,121 +88,121 @@ PD_PUBLIC char *pd_font_find_path(const char *name);
 PD_PUBLIC char *pd_font_find_family(const char *name);
 
 /**
- * 根据字符串内容猜测字体粗细程度
- * 文档：https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight
+ * Guess the font weight from the string content
+ * Documentation: https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight
  */
 PD_PUBLIC pd_font_weight_t pd_font_parse_weight(const char *str);
 
 /**
- * 根据字符串内容猜测字体风格
- * 文档：https://developer.mozilla.org/en-US/docs/Web/CSS/font-style
+ * Guess the font style from the string content
+ * Documentation: https://developer.mozilla.org/en-US/docs/Web/CSS/font-style
  */
 PD_PUBLIC pd_font_style_t pd_font_parse_style(const char *str);
 
-/** 载入字体位图 */
+/** Load a font bitmap */
 PD_PUBLIC int pd_font_render_glyph(pd_glyph_bitmap_t *buff, unsigned ch,
                                    int font_id, int pixel_size);
 
 /** Release the bitmap buffer returned by pd_font_render_glyph(). */
 PD_PUBLIC void pd_glyph_bitmap_destroy(pd_glyph_bitmap_t *bitmap);
 
-/** 添加字体族，并返回该字族的ID */
+/** Register a font family and return its ID */
 PD_PUBLIC int pd_font_register(pd_font_face_t *font);
 
 /**
- * 获取字体的ID
- * @param[in] family_name 字族名称
- * @param[in] style 字体风格
- * @param[in] weight 字体粗细程度，若为值 0，则默认为 PD_FONT_WEIGHT_NORMAL
+ * Get the ID of a font
+ * @param[in] family_name The family name
+ * @param[in] style The font style
+ * @param[in] weight The font weight, defaults to PD_FONT_WEIGHT_NORMAL if 0
  */
 PD_PUBLIC int pd_font_get_id(const char *family_name, pd_font_style_t style,
                              pd_font_weight_t weight);
 
 /**
- * 更新当前字体的粗细程度
- * @param[in] font_ids 当前的字体 id 列表
- * @params[in] weight 字体粗细程度
- * @params[out] new_font_ids 更新字体粗细程度后的字体 id 列表
+ * Update the weight of the current fonts
+ * @param[in] font_ids The current font ID list
+ * @params[in] weight The font weight
+ * @params[out] new_font_ids The font ID list after the update
  */
 PD_PUBLIC size_t pd_font_replace_weight(const int *font_ids,
                                         pd_font_weight_t weight,
                                         int **new_font_ids);
 
 /**
- * 更新当前字体的风格
- * @param[in] font_ids 当前的字体 id 列表
- * @params[in] style 字体风格
- * @params[out] new_font_ids 更新字体粗细程度后的字体 id 列表
+ * Update the style of the current fonts
+ * @param[in] font_ids The current font ID list
+ * @params[in] style The font style
+ * @params[out] new_font_ids The font ID list after the update
  */
 PD_PUBLIC size_t pd_font_replace_style(const int *font_ids,
                                        pd_font_style_t style,
                                        int **new_font_ids);
 
 /**
- * 根据字族名称获取对应的字体 ID 列表
- * @param[out] ids 输出的字体 ID 列表
- * @param[in] style 风格
- * @param[in] weight 字重，若为值 0，则默认为 PD_FONT_WEIGHT_NORMAL
- * @param[in] names 字族名称，多个名字用逗号隔开
- * @return 获取到的字体 ID 的数量
+ * Get the list of font IDs for a family name
+ * @param[out] ids The output font ID list
+ * @param[in] style The style
+ * @param[in] weight The font weight, defaults to PD_FONT_WEIGHT_NORMAL if 0
+ * @param[in] names Family names, separated by commas
+ * @return The number of font IDs found
  */
 PD_PUBLIC unsigned pd_font_query(int **font_ids, pd_font_style_t style,
                                  pd_font_weight_t weight,
                                  const char *const *names);
 
-/** 获取指定字体ID的字体信息 */
+/** Get the font face for the given font ID */
 PD_PUBLIC pd_font_face_t *pd_font_get(int id);
 
-/** 获取默认的字体ID */
+/** Get the default font ID */
 PD_PUBLIC int pd_font_get_default(void);
 
-/** 设置默认的字体 */
+/** Set the default font */
 PD_PUBLIC void pd_font_set_default(int id);
 
-/** 设置字体族的别名 */
+/** Set an alias for a font family */
 PD_PUBLIC bool pd_font_family_set_alias(const char *alias,
                                         const char *family_name);
 
 /**
- * 向字体缓存中添加字体位图
- * @param[in] ch 字符码
- * @param[in] font_id 使用的字体ID
- * @param[in] size 字体大小（单位为像素）
- * @param[out] bmp 要添加的字体位图
- * @warning 此函数仅仅是将 bmp 复制进缓存中，并未重新分配新的空间储存位图数
- * 据，因此，请勿在调用此函数后手动释放 bmp。
+ * Add a font bitmap to the font cache
+ * @param[in] ch The character code
+ * @param[in] font_id The font ID to use
+ * @param[in] size The font size (in pixels)
+ * @param[out] bmp The font bitmap to add
+ * @warning This function only copies bmp into the cache, it does not allocate
+ * space to store the bitmap data, so do not free bmp manually afterwards.
  */
 PD_PUBLIC pd_glyph_bitmap_t *pd_font_cache_add_bitmap(
     wchar_t ch, int font_id, int size, const pd_glyph_bitmap_t *bmp);
 
 /**
- * 从缓存中获取字体位图
- * @param[in] ch 字符码
- * @param[in] font_id 使用的字体ID
- * @param[in] size 字体大小（单位为像素）
- * @param[out] bmp 输出的字体位图的引用
- * @warning 请勿释放 bmp，bmp 仅仅是引用缓存中的字体位图，并未建分配新
- * 空间存储字体位图的拷贝。
+ * Get a font bitmap from the cache
+ * @param[in] ch The character code
+ * @param[in] font_id The font ID to use
+ * @param[in] size The font size (in pixels)
+ * @param[out] bmp The output reference to the font bitmap
+ * @warning Do not free bmp, bmp is only a reference to the font bitmap in the
+ * cache, no new space is allocated to store a copy of the bitmap.
  */
 PD_PUBLIC int pd_font_cache_get_bitmap(unsigned ch, int font_id, int size,
                                        const pd_glyph_bitmap_t **bmp);
 
 /**
- * 设置字形位图缓存上限（按 entry 数）。0 表示不限制。
- * 当现有缓存超出新上限时，立即按 LRU 顺序驱逐多余 entry。
+ * Set the glyph bitmap cache limit (by entry count). 0 means no limit.
+ * When the cache exceeds the new limit, evict the extra entries in LRU order.
  */
 PD_PUBLIC void pd_font_cache_set_capacity(size_t capacity);
 
-/** 当前缓存中实际持有的 entry 数 */
+/** The number of entries currently held in the cache */
 PD_PUBLIC size_t pd_font_cache_count(void);
 
-/** 载入字体至数据库中 */
+/** Load a font into the database */
 PD_PUBLIC int pd_font_load_file(const char *filepath);
 
-/** 初始化字体处理模块 */
+/** Initialize the font processing module */
 PD_PUBLIC void pd_font_library_init(void);
 
-/** 停用字体处理模块 */
+/** Dispose the font processing module */
 PD_PUBLIC void pd_font_library_destroy(void);
 
 PD_END_DECLS

@@ -39,8 +39,8 @@ LIBCSS_PUBLIC css_selector_node_t *css_selector_node_duplicate(
 LIBCSS_PUBLIC void css_selector_node_destroy(css_selector_node_t *node);
 
 /**
- * 匹配选择器节点
- * 左边的选择器必须包含右边的选择器的所有属性。
+ * Match selector nodes
+ * The left selector must contain all properties of the right selector.
  */
 LIBCSS_PUBLIC bool css_selector_node_match(css_selector_node_t *sn1,
                                            css_selector_node_t *sn2);

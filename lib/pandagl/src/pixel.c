@@ -46,13 +46,13 @@ static void pd_format_pixels_argb2rgb(const pd_color_t *in_pixels,
 
         p_px = in_pixels;
         p_out_byte = out_pixels;
-        /* 遍历到倒数第二个像素为止 */
+        /* Iterate up to the second to last pixel */
         p_end_px = p_px + count - 1;
         for (; p_px < p_end_px; ++p_px) {
                 *((pd_color_t *)p_out_byte) = *p_px;
                 p_out_byte += 3;
         }
-        /* 最后一个像素，以逐个字节的形式写数据 */
+        /* The last pixel, write the data byte by byte */
         *p_out_byte++ = p_px->blue;
         *p_out_byte++ = p_px->green;
         *p_out_byte++ = p_px->red;

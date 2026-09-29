@@ -26,26 +26,26 @@
 /** dict_t<string, css_style_link_group_t*> */
 typedef dict_t css_style_group_t;
 
-/** 样式链接记录组 */
+/** Style link record group */
 typedef struct css_style_link_group {
-        dict_t *links;              /**< 样式链接表 */
-        char *name;                 /**< 选择器名称 */
-        css_selector_node_t *snode; /**< 选择器结点 */
+        dict_t *links;              /**< Style link table */
+        char *name;                 /**< Selector name */
+        css_selector_node_t *snode; /**< Selector node */
 } css_style_link_group_t;
 
-/** 样式链接记录 */
+/** Style link record */
 typedef struct css_style_link {
-        char *selector;                /**< 选择器 */
-        css_style_link_group_t *group; /**< 所属组 */
+        char *selector;                /**< Selector */
+        css_style_link_group_t *group; /**< Group it belongs to */
 
         /**
-         * 作用于当前选择器的样式
+         * Styles applied to the current selector
          * list_t<css_style_rule_t*>
          */
         list_t styles;
 
         /**
-         * 父级节点
+         * Parent nodes
          * dict_t<string, css_style_link_t*>
          */
         dict_t *parents;
@@ -53,16 +53,16 @@ typedef struct css_style_link {
 
 static struct css_library_module {
         /**
-         * 样式组列表
+         * Style group list
          * list_t<css_style_group_t*>
          */
         list_t groups;
 
-        /** 字符串池 */
+        /** String pool */
         strpool_t *strpool;
 
         /**
-         * 样式表缓存，以选择器的 hash 值索引
+         * Style declaration cache, indexed by the selector hash
          * dict_t<css_selector_hash_t, css_style_decl_t*>
          */
         dict_t *cache;
@@ -230,7 +230,7 @@ static css_style_group_t *css_style_group_create(void)
         return dict_create(&type, NULL);
 }
 
-/** 根据选择器查找匹配的样式存储空间 */
+/** Find the matching style storage space by selector */
 static css_style_decl_t *css_find_style_store(css_selector_t *selector,
                                               const char *space)
 {
@@ -286,7 +286,7 @@ static css_style_decl_t *css_find_style_store(css_selector_t *selector,
                         }
                         buf[len] = 0;
                 }
-                /* 如果有上一级的父链接记录，则将当前链接添加进去 */
+                /* If there is a parent link record, add the current link */
                 if (parents) {
                         if (!dict_fetch_value(parents, sn->fullname)) {
                                 dict_add(parents, sn->fullname, link);
@@ -327,8 +327,9 @@ int css_add_style_decl(css_selector_t *selector, const css_style_decl_t *style,
 }
 
 /**
- * 从指定样式链接记录中查找样式表
- * @param[out] outlist 输出样式表列表，按照权重从大到小排序
+ * Find style declarations from the specified style link record
+ * @param[out] outlist output style declaration list, sorted by weight
+ *                    in descending order
  */
 static size_t css_style_link_get_styles(css_style_link_t *link, list_t *outlist)
 {

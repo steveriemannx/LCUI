@@ -53,7 +53,7 @@ int pd_canvas_quote(pd_canvas_t *self, pd_canvas_t *source,
                 quote_rect = *rect;
         }
         pd_rect_correct(&quote_rect, source->width, source->height);
-        /* 如果引用源本身已经引用了另一个源 */
+        /* If the quote source already quotes another source */
         if (source->quote.is_valid) {
                 quote_rect.x += source->quote.left;
                 quote_rect.y += source->quote.top;
@@ -100,7 +100,7 @@ void pd_canvas_get_quote_rect(const pd_canvas_t *canvas, pd_rect_t *rect)
 
 void pd_canvas_destroy(pd_canvas_t *canvas)
 {
-        /* 解除引用 */
+        /* Remove the quote */
         if (canvas && canvas->quote.is_valid) {
                 canvas->quote.source = NULL;
                 canvas->quote.is_valid = false;
@@ -131,7 +131,7 @@ int pd_canvas_create(pd_canvas_t *canvas, unsigned width, unsigned height)
             pd_get_pixel_row_size(canvas->color_type, width);
         size = canvas->bytes_per_row * height;
         if (pd_canvas_is_valid(canvas)) {
-                /* 如果现有图形尺寸大于要创建的图形的尺寸，直接改尺寸即可 */
+                /* If the existing canvas is bigger, just change its size */
                 if (canvas->mem_size >= size) {
                         memset(canvas->bytes, 0, canvas->mem_size);
                         canvas->width = width;
@@ -274,7 +274,7 @@ void pd_canvas_copy(pd_canvas_t *des, const pd_canvas_t *src)
         }
         canvas = pd_canvas_get_quote_source_readonly(src);
         des->color_type = canvas->color_type;
-        /* 创建合适尺寸的Graph */
+        /* Create a canvas with the right size */
         pd_canvas_create(des, src->width, src->height);
         pd_canvas_replace(des, src, 0, 0);
         des->opacity = src->opacity;
@@ -337,7 +337,7 @@ static void pd_canvas_mix_argb2rgb(pd_canvas_t *des, pd_rect_t des_rect,
         pd_color_t *px, *px_row;
         uint8_t *rowbytep, *bytep;
 
-        /* 计算并保存第一行的首个像素的位置 */
+        /* Compute and save the position of the first pixel of the first row */
         px_row = pd_canvas_pixel_at(src, src_x, src_y);
         rowbytep = pd_canvas_pixel_at(des, des_rect.x, des_rect.y);
         if (src->opacity < 1.0) {
@@ -396,7 +396,7 @@ int pd_canvas_mix(pd_canvas_t *back, const pd_canvas_t *fore, int left, int top,
         w_rect.width = r_rect.width;
         w_rect.height = r_rect.height;
         pd_canvas_quote(&w_slot, back, &w_rect);
-        /* 获取实际操作区域 */
+        /* Get the actual operation area */
         pd_canvas_get_quote_rect(&w_slot, &w_rect);
         pd_canvas_get_quote_rect(fore, &r_rect);
         if (w_rect.width <= 0 || w_rect.height <= 0 || r_rect.width <= 0 ||
@@ -405,7 +405,7 @@ int pd_canvas_mix(pd_canvas_t *back, const pd_canvas_t *fore, int left, int top,
         }
         top = r_rect.y;
         left = r_rect.x;
-        /* 获取引用的源图像 */
+        /* Get the quoted source image */
         fore = pd_canvas_get_quote_source_readonly(fore);
         back = pd_canvas_get_quote_source(back);
         switch (fore->color_type) {
