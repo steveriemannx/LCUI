@@ -588,7 +588,8 @@ static void ptk_x11window__set_title(ptk_window_t *wnd, const wchar_t *title)
 static void ptk_x11window__set_size(ptk_window_t *wnd, int width, int height)
 {
         // Ignore useless events and avoid infinite window size changes
-        if (wnd->width == width && wnd->height == height) {
+        if (wnd->width == width && wnd->height == height && wnd->ximage &&
+            wnd->gc) {
                 return;
         }
         XResizeWindow(x11_app.display, wnd->handle, width, height);
@@ -597,6 +598,13 @@ static void ptk_x11window__set_size(ptk_window_t *wnd, int width, int height)
         // position set by the previous call to XMoveWindow() has not been
         // updated. Therefore, we need to set the latest position again.
         XMoveWindow(x11_app.display, wnd->handle, wnd->x, wnd->y);
+        // The window is usually resized before it is activated, and
+        // ConfigureNotify is only sent to clients that have already selected
+        // StructureNotifyMask, so this event cannot be relied on to record the
+        // new size and to create the framebuffer. Without this call, painting
+        // stays clamped to a zero sized rect on window systems that never
+        // report the geometry change back to us.
+        ptk_x11window__on_size(wnd, width, height);
 }
 
 static void ptk_x11window__set_position(ptk_window_t *wnd, int x, int y)
