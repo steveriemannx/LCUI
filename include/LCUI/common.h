@@ -13,7 +13,7 @@
 #define LCUI_INCLUDE_LCUI_COMMON_H
 
 #include <stddef.h>
-#include "config.h"
+#include <LCUI/config.h>
 
 #ifndef LCUI_API
 #if defined(_MSC_VER) && !defined(LCUI_STATIC_BUILD)

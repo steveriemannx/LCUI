@@ -34,7 +34,6 @@ jobs:
     env:
       TARGET_MAJOR: 3
       TARGET_VERSION: 3.0.0
-      TARGET_KIND: static
     timeout-minutes: 10
     strategy:
       fail-fast: false
@@ -47,36 +46,42 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: xmake-io/github-action-setup-xmake@v1
+      - uses: lukka/run-vcpkg@v11
+        if: runner.os == 'Windows'
         with:
-          package-cache: true
-          actions-cache-folder: '.xmake-cache'
+          vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+          vcpkgJsonGlob: 'vcpkg.json'
 
       - name: Install tools
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update --fix-missing
           sudo apt-get install debhelper lcov valgrind xvfb -yy
-          sudo apt-get install libfreetype6-dev libpng-dev libyaml-dev libomp-dev libx11-dev ninja-build fontconfig libfontconfig1-dev libjpeg-dev
+          sudo apt-get install libfreetype6-dev libpng-dev libyaml-dev libomp-dev libx11-dev ninja-build fontconfig libfontconfig1-dev libjpeg-dev libxml2-dev libcairo2-dev
 
       - name: Configure
         if: runner.os == 'Windows'
-        run: xmake config -y -v -k ${{ env.TARGET_KIND }} -m release --ci-env=y
+        run: >-
+          cmake -S . -B build
+          -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -DCMAKE_BUILD_TYPE=Release -DLCUI_BUILD_TESTS=ON -DLCUI_CI_ENV=ON
 
       - name: Configure for coverage mode
         if: runner.os == 'Linux'
-        run: xmake config -y -v -k ${{ env.TARGET_KIND }} -m coverage --ci-env=y --memcheck=y
+        run: >-
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DLCUI_BUILD_TESTS=ON
+          -DLCUI_ENABLE_COVERAGE=ON -DLCUI_ENABLE_MEMCHECK=ON -DLCUI_CI_ENV=ON
 
       - name: Build
-        run: xmake
+        run: cmake --build build --config Release --parallel
 
       - name: Run all tests
         if: runner.os == 'Windows'
-        run: xmake test
+        run: ctest --test-dir build -C Release --output-on-failure
 
       - name: Run all tests with memcheck
         if: runner.os == 'Linux'
-        run: xvfb-run -a xmake test
+        run: xvfb-run -a ctest --test-dir build --output-on-failure
 
       - name: Upload reports to Codecov
         if: runner.os == 'Linux'
@@ -84,16 +89,6 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
-
-      - name: Build for release
-        run: |
-          xmake config -y -v -k ${{ env.TARGET_KIND }} -m release
-          xmake
-
-      - name: Package
-        run: |
-          xmake package
-          xmake install -o dist/lcui-package
 
       - uses: actions/setup-node@v4
         with:
@@ -116,15 +111,29 @@ jobs:
         working-directory: examples/doc-viewer
         run: lcui build
 
+      - name: Configure release and examples
+        run: >-
+          cmake -S . -B build-release -DCMAKE_BUILD_TYPE=Release
+          -DLCUI_BUILD_TESTS=OFF -DLCUI_BUILD_EXAMPLES=ON
+          -DLCUI_BUILD_DOC_VIEWER=ON -DLCUI_CI_ENV=ON
+
+      - name: Build release and examples
+        run: cmake --build build-release --config Release --parallel
+
+      - name: Package and install libraries
+        run: |
+          cmake --build build-release --target package --config Release
+          cmake --install build-release --prefix dist/lcui-package --config Release
+
       - name: Build examples
-        run: xmake build -yg lcui-examples
+        run: cmake --build build-release --target lcui-examples --config Release --parallel
 
       - name: Install examples
-        run: xmake install -o dist/lcui-examples -g lcui-examples
+        run: cmake --install build-release --prefix dist/lcui-examples --config Release --component Examples
 
       - uses: actions/upload-artifact@v4
         with:
-          name: lcui${{ env.TARGET_MAJOR }}-${{ env.TARGET_VERSION }}-${{ env.TARGET_KIND }} (${{ runner.os }})
+          name: lcui${{ env.TARGET_MAJOR }}-${{ env.TARGET_VERSION }}-static (${{ runner.os }})
           path: |
             dist/lcui-package
 

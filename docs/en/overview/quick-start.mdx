@@ -6,7 +6,7 @@ Get up and running with LCUI in minutes.
 
 - **Operating system** — Windows (recommended) or Linux
 - **Node.js** — Required to run `@lcui/cli`
-- **xmake** — C/C++ build tool
+- **CMake 3.20+** and a C compiler — Build tools
 - **Git** — Download and manage source code
 
 ## Installation
@@ -23,10 +23,11 @@ Create and run your first app:
 lcui create my-app
 cd my-app
 lcui build
-xmake run app
+cmake -S . -B build
+cmake --build build --parallel
 ```
 
-`lcui create` clones a minimal project from the lcui-quick-start template repository, including xmake.lua configuration, example code, and dependencies. Once done, run `lcui build` to compile TSX resources, then `xmake run app` to launch the application.
+`lcui create` prepares a minimal application project with example code and dependencies. Run `lcui build` to compile TSX resources, then configure and build the generated project with CMake before launching its application target.
 
 ## Next steps
 

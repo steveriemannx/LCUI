@@ -9,7 +9,7 @@
  * in the LICENSE.TXT file in the root directory of this source tree.
  */
 
-#include "config.h"
+#include <ui_server/config.h>
 #ifdef __cplusplus
 #define LIBUI_SERVER_BEGIN_DECLS extern "C" {
 #define LIBUI_SERVER_END_DECLS }

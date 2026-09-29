@@ -108,7 +108,7 @@ emit_arg)`，不是 `ui_widget_on()` 的第四个参数。常规监听器必须�
 
 1. case 实际 `#include` 的库头文件集合（含传递依赖）。
 2. 调用的运行时入口（`lcui_init` / `ui_init` / `pd_*_init` 等）。
-3. xmake target 上需要的 `add_deps`。
+3. CMake target 上声明的链接依赖。
 
 仅触达单 lib（外加 yutil/ctest/标准库）的测试放 `lib/<name>/tests/`；触达两个及以上同级 lib，或依赖 `src/widgets/` 注册的 widget 类型的测试放 `tests/integration/`。
 
@@ -130,7 +130,7 @@ emit_arg)`，不是 `ui_widget_on()` 的第四个参数。常规监听器必须�
 
 - 跨 lib 共享的 fixture 放 `tests/fixtures/`
 - 仅本 lib 用的 fixture 也建议复制到 `tests/fixtures/`（顶层 lcui-tests 与单 lib binary 共用同一 rundir）
-- xmake target 的 `set_rundir` 指向 `tests/fixtures/`
+- CTest 的 `WORKING_DIRECTORY` 指向对应 fixture 目录
 - 测试代码加载资源时直接用文件名，不带目录前缀
 
 ### 三种文件职责
@@ -166,15 +166,13 @@ CTEST_MAIN(suites)
 
 ### 运行
 
-- 全量：`xmake test`
-- 按 pattern 过滤：`xmake test "*/widget*"`（匹配 target/test 名）
-- 按 group 过滤：`xmake test -g tests`
-- 单 binary 跑全部 suite：`xmake run <lib>-tests`，例如 `xmake run lcui-tests`
-- 单 binary 内细粒度过滤：`xmake run lcui-tests --grep="<pattern>"`，子串匹配 suite 名
-- 不要使用 `xmake test "lcui-tests/*" -- --grep "<pattern>"`：当前参数转发不会让
-  `--grep` 在 `lcui-tests` 中生效，实际会运行整个 binary
-- 单 binary 列出 suite：`xmake run lcui-tests --list`
-- 内存检查：`xmake f --memcheck=y && xmake test`，调用 drmemory（Windows）或 valgrind（Linux）；恢复正常运行：`xmake f --memcheck=n`
+- 配置并构建：`cmake -S . -B build -DLCUI_BUILD_TESTS=ON && cmake --build build`
+- 全量测试：`ctest --test-dir build --output-on-failure`
+- 按 target 过滤：`ctest --test-dir build --output-on-failure -R lcui-tests`
+- 单 binary 跑全部 suite：`./build/lcui-tests`
+- 单 binary 内过滤 suite：`./build/lcui-tests --grep="<pattern>"`
+- 单 binary 列出 suite：`./build/lcui-tests --list`
+- 内存检查：配置时加入 `-DLCUI_ENABLE_MEMCHECK=ON`，然后运行 CTest；使用 valgrind（Linux）或 Dr. Memory（Windows）
 
 ### 不要触碰
 

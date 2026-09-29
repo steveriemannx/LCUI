@@ -21,6 +21,7 @@
 .libs
 *.la
 *.txt
+!CMakeLists.txt
 *.gcda
 *.vspx
 *.vs
@@ -32,7 +33,6 @@ build
 *~
 *.intermediate
 .vscode
-.xmake
 dist
 node_modules
 Debug
@@ -68,6 +68,5 @@ build/*.png
 build/*.jpg
 config.h
 test/build
-vsxmake*
 compile_commands.json
 docs/build/

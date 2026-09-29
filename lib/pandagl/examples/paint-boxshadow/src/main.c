@@ -10,6 +10,7 @@
  */
 
 #include <pandagl.h>
+#include <css.h>
 
 int paint_background(pd_context_t *ctx, pd_rect_t *box)
 {

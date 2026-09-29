@@ -230,8 +230,9 @@ interface FieldData {
 bun run compile                   # 全量编译 MDX → page.tsx
 bun run compile --watch           # 监听变更
 npx lcui build app --force        # 重生成 C 层 .tsx.h / main.h
-xmake build doc-viewer            # 编译链接
-xmake run doc-viewer              # 运行验证
+cmake -S ../.. -B ../../build -DLCUI_BUILD_EXAMPLES=ON -DLCUI_BUILD_DOC_VIEWER=ON
+cmake --build ../../build --target doc-viewer
+../../build/examples/doc-viewer/dist/doc-viewer
 ```
 
 每次修改 MDX 或 widget-fields 后，须依次运行：
@@ -239,10 +240,11 @@ xmake run doc-viewer              # 运行验证
 ```bash
 bun run compile
 npx lcui build app --force
-xmake build doc-viewer
+cmake -S ../.. -B ../../build -DLCUI_BUILD_EXAMPLES=ON -DLCUI_BUILD_DOC_VIEWER=ON
+cmake --build ../../build --target doc-viewer
 ```
 
-> ⚠️ `npx lcui build app --force` 输出末尾的 `unknown target(lcui) for doc-viewer.deps!` 警告无害，是已知问题，可忽略。`bun run compile` 自动复制 `widget-fields/` 并触发页面生成；任何一步失败都会产生连锁错误。
+`bun run compile` 自动复制 `widget-fields/` 并触发页面生成；任何一步失败都会产生连锁错误。
 
 ## Demo 变体命名约定
 

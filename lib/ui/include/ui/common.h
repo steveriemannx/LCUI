@@ -12,7 +12,7 @@
 #ifndef LIB_UI_INCLUDE_UI_COMMON_H
 #define LIB_UI_INCLUDE_UI_COMMON_H
 
-#include "config.h"
+#include <ui/config.h>
 
 #ifdef __cplusplus
 #define LIBUI_BEGIN_DECLS extern "C" {

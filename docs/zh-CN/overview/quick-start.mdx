@@ -6,7 +6,7 @@
 
 - **操作系统** — Windows（推荐）或 Linux
 - **Node.js** — 运行 `@lcui/cli` 工具
-- **xmake** — C/C++ 构建工具
+- **CMake 3.20+** 和 C 编译器 — 构建工具
 - **Git** — 下载和管理源码
 
 ## 安装
@@ -23,10 +23,11 @@ npm install -g @lcui/cli
 lcui create my-app
 cd my-app
 lcui build
-xmake run app
+cmake -S . -B build
+cmake --build build --parallel
 ```
 
-`lcui create` 会从 lcui-quick-start 模板仓库克隆一个最小项目，包含 xmake.lua 配置、示例代码和依赖。完成后运行 `lcui build` 编译 TSX 资源，再运行 `xmake run app` 启动应用。
+`lcui create` 会准备一个包含示例代码和依赖的最小应用项目。运行 `lcui build` 编译 TSX 资源，然后使用 CMake 配置并构建生成的项目，再启动应用 target。
 
 ## 下一步
 

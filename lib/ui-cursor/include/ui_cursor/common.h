@@ -9,7 +9,7 @@
  * in the LICENSE.TXT file in the root directory of this source tree.
  */
 
-#include "config.h"
+#include <ui_cursor/config.h>
 #ifdef __cplusplus
 #define LIBUI_CURSOR_BEGIN_DECLS extern "C" {
 #define LIBUI_CURSOR_END_DECLS }

@@ -72,7 +72,7 @@ The core source code of LCUI is located in the `src/` directory and is divided i
 Before you begin, you need to install the following software on your computer:
 
 - [Git](https://git-scm.com/download/): Version control tool used to download the source code of the example project.
-- [XMake](https://xmake.io/#/zh-cn/?id=%e5%ae%89%e8%a3%85): Build tool used to build the project.
+- [CMake](https://cmake.org/download/) 3.20 or newer and a C compiler: Build tools used to build the project.
 - [Node.js](https://nodejs.org/): JavaScript runtime environment used to run the LCUI command-line development tool.
 
 Then, run the following commands in a command-line window:
@@ -86,6 +86,17 @@ lcui create my-lcui-app
 ```
 
 Follow the prompts provided by the commands afterward.
+
+### Build LCUI from source
+
+```shell
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
+ctest --test-dir build --output-on-failure
+cmake --install build --prefix dist/lcui
+```
+
+Optional image, font, XML, YAML, OpenMP, X11, and Cairo support is enabled when its development package is available. Use `-DLCUI_BUILD_EXAMPLES=ON` to include examples.
 
 ## Documentation
 
@@ -183,7 +194,7 @@ LCUI has adopted the code of conduct defined by the Contributor Covenant. This d
 
 The build configuration of this project has included the "Treat Warnings as Errors" compilation option. This might be because your compiler is relatively new and can detect more issues from the code. 
 
-You can try to search for all xmake.lua files that contain `set_warnings("all", "error")` and remove this rule.
+You can temporarily disable warnings-as-errors with `-DLCUI_WARNINGS_AS_ERRORS=OFF` when configuring CMake.
 
 **Is this a browser engine? Or a development library like Electron that integrates a browser environment?**
 

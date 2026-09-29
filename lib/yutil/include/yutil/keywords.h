@@ -1,7 +1,7 @@
 #ifndef YUTIL_KEYWORDS_H
 #define YUTIL_KEYWORDS_H
 
-#include "config.h"
+#include <yutil/config.h>
 
 #if defined(__GNUC__)
 #define YUTIL_API extern __attribute__((visibility("default")))

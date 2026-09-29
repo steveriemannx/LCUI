@@ -70,7 +70,7 @@ LCUI 的核心源码位于 `src/` 目录，划分为以下几个功能模块：
 在开始前你需要在你的计算机上安装以下软件：
 
 - [Git](https://git-scm.com/download/)：版本管理工具，用于下载示例项目源码。
-- [XMake](https://xmake.io/#/zh-cn/?id=%e5%ae%89%e8%a3%85)：C/C++ 构建工具，用于构建项目。
+- [CMake](https://cmake.org/download/) 3.20 或更高版本及 C 编译器：用于配置和构建项目。
 - [Node.js](https://nodejs.org/): JavaScript 运行环境，用于运行 LCUI 的命令行开发工具。
 
 然后在命令行窗口中运行以下命令：
@@ -84,6 +84,17 @@ lcui create my-lcui-app
 ```
 
 之后按照命令输出的提示继续操作。
+
+### 从源码构建 LCUI
+
+```shell
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
+ctest --test-dir build --output-on-failure
+cmake --install build --prefix dist/lcui
+```
+
+检测到相应开发包时会启用图像、字体、XML、YAML、OpenMP、X11 和 Cairo 支持。使用 `-DLCUI_BUILD_EXAMPLES=ON` 可同时构建示例。
 
 ## 文档
 
@@ -172,7 +183,7 @@ lcui create my-lcui-app
 
 **编译报错了**
 
-本项目的构建配置加入了"将警告视为错误"编译选项，可能是因为你的编译器比较新，能够从代码中发现更多问题。你可以尝试搜索所有包含 `set_warnings("all", "error")` 的 xmake.lua 文件然后将这项规则删除。
+本项目默认将警告视为错误。配置 CMake 时可使用 `-DLCUI_WARNINGS_AS_ERRORS=OFF` 暂时关闭此选项。
 
 **这是一个浏览器内核吗？或者是像 Electron 这样的集成了浏览器环境的开发库？**
 

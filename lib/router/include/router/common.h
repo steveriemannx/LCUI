@@ -9,7 +9,7 @@
  * in the LICENSE.TXT file in the root directory of this source tree.
  */
 
-#include "version.h"
+#include <router/version.h>
 #ifdef __cplusplus
 #define LIBROUTER_BEGIN_DECLS extern "C" {
 #define LIBROUTER_END_DECLS }

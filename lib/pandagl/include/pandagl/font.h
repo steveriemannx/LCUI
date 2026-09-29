@@ -94,6 +94,9 @@ PD_PUBLIC pd_font_style_t pd_font_parse_style(const char *str);
 PD_PUBLIC int pd_font_render_glyph(pd_glyph_bitmap_t *buff, unsigned ch,
                                    int font_id, int pixel_size);
 
+/** Release the bitmap buffer returned by pd_font_render_glyph(). */
+PD_PUBLIC void pd_glyph_bitmap_destroy(pd_glyph_bitmap_t *bitmap);
+
 /** 添加字体族，并返回该字族的ID */
 PD_PUBLIC int pd_font_register(pd_font_face_t *font);
 

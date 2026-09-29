@@ -9,7 +9,7 @@
  * in the LICENSE.TXT file in the root directory of this source tree.
  */
 
-#include "config.h"
+#include <ui_xml/config.h>
 #ifdef __cplusplus
 #define LIBUI_XML_BEGIN_DECLS extern "C" {
 #define LIBUI_XML_END_DECLS }

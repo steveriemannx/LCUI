@@ -1,0 +1,11 @@
+{
+  "name": "lcui",
+  "version-string": "3.0.0",
+  "dependencies": [
+    "freetype",
+    "libpng",
+    "libjpeg-turbo",
+    "libxml2",
+    "libyaml"
+  ]
+}

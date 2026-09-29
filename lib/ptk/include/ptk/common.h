@@ -9,7 +9,7 @@
  * in the LICENSE.TXT file in the root directory of this source tree.
  */
 
-#include "config.h"
+#include <ptk/config.h>
 #ifdef __cplusplus
 #define PTK_BEGIN_DECLS extern "C" {
 #define PTK_END_DECLS }

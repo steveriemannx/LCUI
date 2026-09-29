@@ -9,7 +9,7 @@
  * in the LICENSE.TXT file in the root directory of this source tree.
  */
 
-#include "config.h"
+#include <css/config.h>
 #ifdef __cplusplus
 #define LIBCSS_BEGIN_DECLS extern "C" {
 #define LIBCSS_END_DECLS }

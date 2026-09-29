@@ -9,7 +9,7 @@
  * in the LICENSE.TXT file in the root directory of this source tree.
  */
 
-#include "config.h"
+#include <worker/config.h>
 #ifdef __cplusplus
 #define LIBWORKER_BEGIN_DECLS extern "C" {
 #define LIBWORKER_END_DECLS }
